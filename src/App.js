@@ -2,28 +2,21 @@ import './App.css';
 import { Component } from 'react';
 import { INCREMENT } from './redux/actions/counter'
 import { connect } from "react-redux";
-import Counter from './components/Counter';
-import GqlTest from './components/GqlTest.tsx';
+//import Counter from './components/Counter';
+import NavBar from './components/NavBar.tsx';
+import ProductsView from './views/ProductsView.tsx';
 
 class App extends Component {
   render() {
     return (
       <div className="App">
-        <header className="App-header">
-
-          <a
-            className="App-link"
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn React
-          </a>
+        <header>
+          <NavBar />
         </header>
         <main>
-          <h2>Count: {this.props.count}</h2>
-          <Counter />
-          <GqlTest />
+          {/* <h2>Count: {this.props.count}</h2>
+          <Counter /> */}
+          <ProductsView />
         </main>
       </div>
     );

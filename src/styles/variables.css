@@ -1,0 +1,20 @@
+:root {
+    --selected-link-color: #5ECE7B;
+    --main-link-color: #1D1F22;
+    --hover-gray-color: #EEEEEE;
+}
+.d-flex {
+    display: flex;
+}
+.ji-c {
+    justify-items: center;
+}
+.jc-space-around {
+    justify-content: space-around;
+}
+.jc-space-between {
+    justify-content: space-between;
+}
+.ai-c {
+    align-items: center;
+}

@@ -1,0 +1,92 @@
+/* Mobile */
+.navbar-links a {
+    color: var(--main-link-color);
+    margin: 2vw;
+    padding-bottom: 0.5rem;
+    text-decoration: none;
+    font-weight: 400;
+}
+.app-navbar {
+    min-height: 80px;
+    padding: 0 3vw;
+}
+.navbar-links .selected-link {
+    color: var(--selected-link-color);
+    border-bottom: 2px solid var(--selected-link-color);
+    font-weight: 600;
+}
+.navbar-logo {
+    padding: 0;   
+}
+.navbar-logo img {
+    height: 31px;
+    width: 31px;
+}
+.dollar-icon {
+    font-weight: 500;
+    margin-right: 1vw;
+    font-size: 1.125rem;
+}
+.dropdown-button {
+    position: relative;
+}
+
+.cart-icon {
+    margin: 0 2vw 0 3vw;
+}
+.currencies {
+    position: absolute;
+    top: 30px;
+    left: -1.5rem;
+    box-shadow: rgba(17, 17, 26, 0.05) 0px 1px 0px, rgba(17, 17, 26, 0.06) 0px 0px 8px;
+}
+.hidden {
+    display: none;
+}
+.currencies li {
+    list-style-type: none;
+    padding: 0.4rem 1rem;
+}
+
+.currencies span {
+    padding: 0.2rem;
+}
+/* Portrait orientation */
+@media(min-width: 576px) {
+    .navbar-links a {
+        padding-bottom: 1rem;
+    }
+}
+
+/* Tablets */
+@media(min-width: 768px) {
+    .navbar-links a {
+        padding-bottom: 1rem;
+    }
+    .currencies li {
+        padding: 0.8rem 1.6rem;
+    }
+    .dropdown-button:hover {
+        cursor: pointer;
+    }
+    .currencies li:hover {
+        background: var(--hover-gray-color);
+    }
+    .cart-icon:hover {
+        cursor: pointer;
+    }
+}
+
+/* Laptops */
+@media(min-width: 992px) {
+    .navbar-links a {
+        padding-bottom: 1rem;
+    }
+}
+
+/* Desktop */
+@media(min-width: 1200px ) {
+    .navbar-links a {
+        padding-bottom: 1rem;
+    }
+}
