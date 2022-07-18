@@ -1,0 +1,117 @@
+a {
+    text-decoration: none;
+}
+.product-image-wrapper > img {
+    width: 100%;
+    height: 260px;
+    -o-object-fit: cover;
+       object-fit: cover;
+}
+.product-image-wrapper {
+    position: relative;
+}
+.product-title {
+    font-weight: 300;
+    margin: 1rem 0 0.5rem 0;
+}
+.product-price {
+    font-weight: 500;
+}
+.product-out-of-stock {
+    position: absolute;
+    background: var(--out-of-stock-bg-color);
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: var(--out-of-stock-text-color);
+    font-weight: 400;
+    font-size: 1.5rem;
+}
+.hidden {
+    display: none;
+}
+.out-of-stock-text {
+    color: var(--out-of-stock-text-color);
+}
+.cart-icon-wrapper {
+    background: var(--main-green-color);
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    right: 20px;
+    bottom: -25px;
+    border: 2px solid var(--main-green-color);
+    width: 52px;
+    height: 52px;
+    transform: scale(0);
+}
+
+.cart-icon-wrapper img {
+    width: 0;
+    height: 0;
+    -webkit-filter: invert(100%) hue-rotate(180deg) brightness(132%) contrast(100%);
+            filter: invert(100%) hue-rotate(180deg) brightness(132%) contrast(100%);
+}
+
+/* Portrait orientation */
+@media(min-width: 539px) {
+    .product {
+        padding: 5%;
+    }
+    .product:hover {
+        box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+        transition: all 0.3s ease-out;
+        cursor: pointer;
+    }
+    .product:hover .product-image-wrapper .cart-icon-wrapper {
+        transform: scale(1);
+        transition: all 0.3s ease-out;
+        visibility: visible;
+    }
+    .product:hover .product-image-wrapper .cart-icon-wrapper img {
+        width: 20px;
+        height: 20px;
+        transition: all 0.5s ease-out;
+    }
+    .product:hover .product-image-wrapper .cart-icon-wrapper:hover {
+        background: white;
+        border: 2px solid var(--main-green-color);        
+    }
+    .product:hover .product-image-wrapper .cart-icon-wrapper:hover img {
+        -webkit-filter: none;
+                filter: none;
+    }
+}
+
+/* Tablets */
+@media(min-width: 768px) {
+
+}
+
+/* Laptops */
+@media(min-width: 992px) {
+    .product-image-wrapper > img {
+        height: 290px;
+    }
+}
+
+/* Desktop */
+@media(min-width: 1200px ) {
+    .product-image-wrapper > img {
+        height: 330px;
+    }
+}
+
+/* Desktop */
+@media(min-width: 1440px ) {
+    .product-image-wrapper > img {
+        height: 360px;
+    }
+}

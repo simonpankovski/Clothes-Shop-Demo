@@ -1,7 +1,6 @@
 /* Mobile */
 .navbar-links a {
-    color: var(--main-link-color);
-    margin: 2vw;
+    margin: 1vw;
     padding-bottom: 0.5rem;
     text-decoration: none;
     font-weight: 400;
@@ -11,8 +10,8 @@
     padding: 0 3vw;
 }
 .navbar-links .selected-link {
-    color: var(--selected-link-color);
-    border-bottom: 2px solid var(--selected-link-color);
+    color: var(--main-green-color);
+    border-bottom: 2px solid var(--main-green-color);
     font-weight: 600;
 }
 .navbar-logo {
@@ -30,31 +29,40 @@
 .dropdown-button {
     position: relative;
 }
-
+.dropdown-arrow {
+    transition: all 0.5s cubic-bezier(1, 0.06, 0, 1.29);
+}
 .cart-icon {
-    margin: 0 2vw 0 3vw;
+    margin: 0 2vw 0 2vw;
 }
 .currencies {
     position: absolute;
+    background: white;
     top: 30px;
-    left: -1.5rem;
+    left: -4rem;
+    z-index: 10;
+    opacity: 0;
+    transition: all 0.5s cubic-bezier(0.34, 0.54, 0.47, 1.08);
     box-shadow: rgba(17, 17, 26, 0.05) 0px 1px 0px, rgba(17, 17, 26, 0.06) 0px 0px 8px;
-}
-.hidden {
-    display: none;
+    font-size: var(--sm-size);
+    //transition: max-height 0.9s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 .currencies li {
     list-style-type: none;
-    padding: 0.4rem 1rem;
+    padding: 1rem 1.5rem;
 }
 
 .currencies span {
     padding: 0.2rem;
 }
 /* Portrait orientation */
-@media(min-width: 576px) {
+@media(min-width: 539px) {
     .navbar-links a {
         padding-bottom: 1rem;
+    }
+    .navbar-logo img {
+        height: 41px;
+        width: 41px;
     }
 }
 

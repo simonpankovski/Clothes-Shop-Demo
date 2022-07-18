@@ -1,7 +1,18 @@
 :root {
-    --selected-link-color: #5ECE7B;
-    --main-link-color: #1D1F22;
+    /* Colors */
+    --main-green-color: #5ECE7B;
+    --main-text-color: #1D1F22;
     --hover-gray-color: #EEEEEE;
+    --out-of-stock-bg-color: #C4C4C461;
+    --out-of-stock-text-color: #8D8F9A;
+
+    /* Sizes */
+    --regular-size: 1rem;
+    --sm-size: 1.125rem;
+    --md-size: 1.25rem;
+    --lg-size: 1.375rem;
+    --xl-size: 1.5rem;
+
 }
 .d-flex {
     display: flex;
@@ -17,4 +28,31 @@
 }
 .ai-c {
     align-items: center;
+}
+.hidden {
+    display: none;
+    transition: opacity 1s ease-out;
+    opacity: 0;
+}
+
+
+/* Media queries */
+/* Portrait orientation */
+@media(min-width: 539px) {
+    
+}
+
+/* Tablets */
+@media(min-width: 768px) {
+    
+}
+
+/* Laptops */
+@media(min-width: 992px) {
+    
+}
+
+/* Desktop */
+@media(min-width: 1200px ) {
+    
 }

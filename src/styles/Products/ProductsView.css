@@ -1,0 +1,75 @@
+.main-content {
+    margin: 5vw 5vw 5vw 5vw;
+}
+.products-category {
+    margin-bottom: 5vh;
+}
+.catalog {
+    margin-top: 5vw;
+    padding: var(--gap);
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+    //grid-auto-rows: 330px;
+    row-gap: 5rem;
+}
+.scroll-to-top-button {
+    background: var(--main-green-color);
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: 600;
+    font-stretch: expanded;
+    position: fixed;
+    bottom: 50px;
+    right: 30px;
+    z-index: 15;
+    border: 2px solid var(--main-green-color)
+}
+.scroll-to-top-button:hover {
+    background: white;
+    border: 2px solid var(--main-green-color);
+    transition: all 0.5s ease-out;
+    cursor: pointer;
+}
+.scroll-to-top-button img {
+    filter: invert(100%);
+    display: flex;
+    justify-content: center;
+    align-self: center;
+    transform: scale(1.5, -1.5);   
+}
+.scroll-to-top-button:hover img{
+    filter: saturate(10);
+}
+
+/* Portrait orientation */
+@media(min-width: 539px) {
+    .catalog {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* Tablets */
+@media(min-width: 768px) {
+    .catalog {
+        grid-template-columns: repeat(3, 1fr);
+        row-gap: 4rem;
+    }
+}
+
+/* Laptops */
+@media(min-width: 992px) {
+    .catalog {
+        column-gap: 1.5rem;
+    }
+}
+
+/* Desktop */
+@media(min-width: 1200px ) {
+    .catalog {
+        column-gap: 2rem;
+    }
+}

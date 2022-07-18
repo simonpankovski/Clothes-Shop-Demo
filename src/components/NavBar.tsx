@@ -6,17 +6,26 @@ import "../styles/NavBar/NavBar.css";
 import logo from "../assets/a-logo.svg";
 import arrow from "../assets/dropdown-arrow.svg";
 import cartIcon from "../assets/cart-icon.svg";
-export default class GqlTest extends Component<
+import { Link } from "react-router-dom";
+import { connect } from "react-redux";
+import { SET_CURRENCY } from '../redux/actions/currency';
+class NavBar extends Component<
   {},
-  { currencies: []; categories: [] }
+  {
+    currencies: Array<any>;
+    categories: Array<any>,
+    isCurrencyMenuOpen: Boolean
+  }
 > {
   constructor(props: any) {
     super(props);
-    this.toggleCurrenciesMenu = this.toggleCurrenciesMenu.bind(this);
+    this.handleCurrenciesMenu = this.handleCurrenciesMenu.bind(this);
     this.toggleCartMenu = this.toggleCartMenu.bind(this);
+    this.changeCurrency = this.changeCurrency.bind(this);
     this.state = {
       currencies: [],
       categories: [],
+      isCurrencyMenuOpen: false
     };
   }
   async fetchCurrencies() {
@@ -38,61 +47,94 @@ export default class GqlTest extends Component<
   }
 
   async toggleCartMenu(ev) {
-    console.log(ev);
     //document.querySelector(".currencies")?.classList.toggle("hidden");
   }
-
-  async toggleCurrenciesMenu(ev) {
+  toggleCurrenciesMenu() {
+    let currencyMenu = document.querySelector(".currencies");
+    let arrow = document.querySelector(".dropdown-arrow");
+    if (currencyMenu === null || arrow === null) return;
+    if (!this.state.isCurrencyMenuOpen) {
+      currencyMenu.style.opacity = "1";
+      currencyMenu.style.visibility = "visible";
+      currencyMenu.style["box-shadow"] = "rgba(17, 17, 26, 0.05) 0px 1px 0px, rgba(17, 17, 26, 0.06) 0px 0px 8px";
+      arrow.style.transform = "scale(1, -1)"
+    }
+    else {
+      currencyMenu.style.opacity = "0";
+      currencyMenu.style.visibility = "hidden";
+      arrow.style.transform = "";
+    }
+  }
+  async handleCurrenciesMenu(ev) {
     const res = await this.fetchCurrencies();
     let currencies = res.currencies;
     this.setState({
       currencies,
+      isCurrencyMenuOpen: !this.state.isCurrencyMenuOpen
     });
     ev.stopPropagation();
-    console.log(ev);
-    document.querySelector(".currencies")?.classList.toggle("hidden");
+    this.toggleCurrenciesMenu();
   }
-  handleFocusChange() {
-    //document.querySelector(".hidden")?.classList.add("hidden");
+  closeCurrencyMenuOnDocumentClick() {
+    document.addEventListener("click", (ev) => {
+      //console.log(ev.target?.closest(".dropdown-button") != null);
+      if (this.state.isCurrencyMenuOpen && ev.target?.closest(".dropdown-button") == null) {
+        let currencyMenu = document.querySelector(".currencies");
+        currencyMenu.style.opacity = "0";
+        currencyMenu.style.visibility = "hidden";
+        this.setState({
+          isCurrencyMenuOpen: false
+        });
+        let arrow = document.querySelector(".dropdown-arrow");
+        arrow.style.transform = "";
+      }
+    })
   }
-  capitalizeFirstLetter(string) {
-    return string.charAt(0).toUpperCase() + string.slice(1);
+  changeCurrency(ev, el) {
+    this.props.SET_CURRENCY(el);
+  }
+  isLinkSelected(category: String) {
+    const search = window.location.pathname;
+    return search.includes(category?.name);
   }
   async componentDidMount() {
     let categories = await this.fetchCategories();
+    this.closeCurrencyMenuOnDocumentClick()
     categories = categories.categories;
     this.setState({
       categories,
     });
-    console.log(this.state.categories);
   }
+  toggleSelectedClass(ev, category) {
+    document.querySelectorAll(".navbar-links a").forEach(el => {
+      el.classList.remove("selected-link");
+    })
+    ev.target.classList.add("selected-link");
+    window.location.href = "/" + category.name
+  }
+
   render() {
     return (
       <div className="app-navbar d-flex ai-c jc-space-between">
         <div className="navbar-links">
           {this.state.categories.map((category, index) => (
-            <a
-              href="#"
-              key={index}
-              className={index === 0 ? "selected-link" : "not"}
-            >
-              {this.capitalizeFirstLetter(category.name)}
-            </a>
+            <Link key={index} onClick={ev => this.toggleSelectedClass(ev, category)} className={this.isLinkSelected(category) ? "selected-link" : ""} to={"/" + category.name}>
+              {category.name.toUpperCase()}</Link>
           ))}
         </div>
         <div className="navbar-logo">
-          <img src={logo} alt="Brand icon" height="41" width="41" />
+          <img src={logo} alt="Brand icon" />
         </div>
         <div className="navbar-utils d-flex">
           <div
             className="d-flex dropdown-button ai-c"
-            onClick={this.toggleCurrenciesMenu}
+            onClick={this.handleCurrenciesMenu}
           >
             <p className="dollar-icon">$</p>
-            <img src={arrow} alt="Dropdown arrow icon" height="11" width="11" />
-            <div className="currencies hidden">
+            <img className="dropdown-arrow" src={arrow} alt="Dropdown arrow icon" height="11" width="11" />
+            <div className="currencies">
               {this.state.currencies.map((el, index) => (
-                <li className="d-flex jc-space-between" key={index}>
+                <li className="d-flex jc-space-between" onClick={(ev) => { this.changeCurrency(ev, el) }} key={index}>
                   <span>{el.symbol}</span>
                   <span>{el.label}</span>
                 </li>
@@ -102,14 +144,14 @@ export default class GqlTest extends Component<
           <div className="cart-icon" onClick={this.toggleCartMenu}>
             <img
               src={cartIcon}
-              alt="Dropdown arrow icon"
+              alt="Cart icon"
               height="20"
               width="20"
             />
             <div className="cart-items hidden">
               {this.state.currencies.map((el, index) => (
-                <li className="d-flex jc-space-between" key={index}>
-                  <span>{el.symbol}</span>
+                <li className="d-flex jc-space-between" key={index} >
+                  <span >{el.symbol}</span>
                   <span>{el.label}</span>
                 </li>
               ))}
@@ -120,3 +162,4 @@ export default class GqlTest extends Component<
     );
   }
 }
+export default connect(null, { SET_CURRENCY })(NavBar);

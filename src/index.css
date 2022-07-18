@@ -4,6 +4,9 @@
 */
 
 @import url('https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Source+Sans+Pro&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
 @import url('../src/styles/variables.css');
 
 html, body, div, span, applet, object, iframe,
@@ -18,13 +21,14 @@ table, caption, tbody, tfoot, thead, tr, th, td,
 article, aside, canvas, details, embed, 
 figure, figcaption, footer, header, hgroup, 
 menu, nav, output, ruby, section, summary,
-time, mark, audio, video {
+time, mark, audio, video, p, button {
 	margin: 0;
 	padding: 0;
 	border: 0;
 	font-size: 100%;
 	font: inherit;
 	vertical-align: baseline;
+	color: var(--main-text-color);
 }
 /* HTML5 display-role reset for older browsers */
 article, aside, details, figcaption, figure, 
@@ -50,10 +54,22 @@ table {
 	border-spacing: 0;
 }
 
-body {
+body, button {
   margin: 0;
   font-family: 'Raleway', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
+h1 {
+    font-weight: 400;
+    font-size: 2.625rem;
+}
+h2 {
+	font-weight: 400;
+	font-size: 2.125rem;
+}
+h3 {
+	font-weight: 400;
+	font-size: 1.875rem;
+}

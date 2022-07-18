@@ -1,5 +1,5 @@
 import { combineReducers } from "redux";
 import counterReducer from "./counter";
-import testReducer from "./testReducer";
+import currencyReducer from "./currency";
 
-export default combineReducers({ counterReducer, testReducer });
+export default combineReducers({ currencyReducer, counterReducer  });
