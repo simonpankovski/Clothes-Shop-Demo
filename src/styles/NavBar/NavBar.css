@@ -7,7 +7,7 @@
 }
 .app-navbar {
     min-height: 80px;
-    padding: 0 3vw;
+    padding: 0 6vw;
 }
 .navbar-links .selected-link {
     color: var(--main-green-color);

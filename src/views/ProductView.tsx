@@ -95,8 +95,8 @@ class ProductView extends Component<
   renderAttributeValues(attribute) {
     let attributeValues = attribute.items.map((item, i) => {
       return <li onClick={this.selectItem} key={i} style={attribute.type === "swatch" ?
-        { background: item.value, fontSize: 0, aspectRatio: "1/1", borderColor: "var(--main-text-color)" } :
-        {}} data-value={item.value}>{item.displayValue}</li>
+        { background: item.value, border: "1px solid", aspectRatio: "1/1", borderColor: "var(--main-text-color)" } :
+        {}} data-value={item.value}>{attribute.type === "swatch" ? "" : item.value}</li>
     })
     return attributeValues;
   }
@@ -104,7 +104,7 @@ class ProductView extends Component<
     return (
       <div className='product-display-page'>
         <div className='row'>
-          <div className="col">
+          <div className="col-first">
             <div className='product-title'>
               <h3>{this.state.product.brand}</h3>
               <h3>{this.state.product.name}</h3>
@@ -118,20 +118,21 @@ class ProductView extends Component<
                   </ul>
                 </div>
               )}
+
             </div>
-            <div className="product-price">
-              <div className='product-attributes'>
-                <p className='attribute-name'>PRICE:</p>
+            <div className='product-attributes product-price'>
+              <p className='attribute-name'>PRICE:</p>
+              <div className='product-amount'>
+                <p>{this.state.price.amount + " " + this.state.price.symbol}</p>
               </div>
-              <p>{this.state.price.amount + " " + this.state.price.symbol}</p>
             </div>
-            <div>
+            <div className='add-to-cart-wrapper'>
               <button className='add-to-cart-button'>ADD TO CART</button>
             </div>
             {/* Could add a sanitizer for the description, as its set with innerHTML */}
             <div className='product-description' dangerouslySetInnerHTML={{ __html: this.state.product.description }} />
           </div>
-          <div className="col">
+          <div className="col-last">
             <div className='gallery-images'>
               {this.state.product.gallery.map((image, index) =>
                 <img src={image} alt="Gallery Item" key={index}
@@ -141,7 +142,6 @@ class ProductView extends Component<
             <img className='selected-product-image'
               src={this.state.product.gallery[this.state.selectedImageIndex]} alt="Selected Product" />
           </div>
-
         </div>
       </div>
     )
