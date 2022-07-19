@@ -14,7 +14,8 @@ class NavBar extends Component<
   {
     currencies: Array<any>;
     categories: Array<any>,
-    isCurrencyMenuOpen: Boolean
+    isCurrencyMenuOpen: Boolean,
+    cartCount: Number
   }
 > {
   constructor(props: any) {
@@ -25,7 +26,8 @@ class NavBar extends Component<
     this.state = {
       currencies: [],
       categories: [],
-      isCurrencyMenuOpen: false
+      isCurrencyMenuOpen: false,
+      cartCount: 0
     };
   }
   async fetchCurrencies() {
@@ -97,12 +99,25 @@ class NavBar extends Component<
     const search = window.location.pathname;
     return search.includes(category?.name);
   }
+  componentDidUpdate(prevProps) {
+    const cartItems = Object.values(this.props.cart).map(item => item.quantity);
+    const prevQuantity = cartItems.reduce((previousValue, currentValue) => { return previousValue + currentValue}, 0)
+
+    if (prevQuantity !== this.state.cartCount) {
+      console.log("succ")
+      this.setState({
+        cartCount: prevQuantity
+      });
+    }
+  }
   async componentDidMount() {
     let categories = await this.fetchCategories();
     this.closeCurrencyMenuOnDocumentClick()
     categories = categories.categories;
+    const cartItems = Object.values(this.props.cart).map(item => item.quantity);
     this.setState({
       categories,
+      cartCount: cartItems.reduce((previousValue, currentValue) => { return previousValue + currentValue}, 0)
     });
   }
   toggleSelectedClass(ev, category) {
@@ -148,6 +163,7 @@ class NavBar extends Component<
               height="20"
               width="20"
             />
+            <div className="cart-count"><p>{(this.state.cartCount) > 0 ? this.state.cartCount : ""}</p></div>
             <div className="cart-items hidden">
               {this.state.currencies.map((el, index) => (
                 <li className="d-flex jc-space-between" key={index} >
@@ -162,4 +178,9 @@ class NavBar extends Component<
     );
   }
 }
-export default connect(null, { SET_CURRENCY })(NavBar);
+const mapStateToProps = (state) => {
+  return {
+    cart: state.cartReducer.cart
+  };
+};
+export default connect(mapStateToProps, { SET_CURRENCY })(NavBar);

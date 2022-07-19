@@ -13,7 +13,7 @@
     width: 100%;
 }
 
-.selected-product-image {
+.main-product-image {
     width: 100%;
     margin: 3rem 0;
 }
@@ -212,7 +212,7 @@
         gap: 3rem;
     }
 
-    .selected-product-image {
+    .main-product-image {
         width: 70%;
         max-height: 70vh;
         aspect-ratio: 3/1;

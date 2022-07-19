@@ -1,14 +1,16 @@
 import React, { Component } from 'react'
 import { client, DataType, Field, Query } from '@tilework/opus';
 import { connect } from "react-redux";
-import '../styles/Products/ProductView.css'
+import '../styles/Products/ProductView.css';
+import { ADD_TO_CART } from '../redux/actions/cart';
 class ProductView extends Component<
   {},
   {
     productId: String,
     product: Object,
     selectedImageIndex: Number,
-    price: { label: String, amount: Number, symbol: String }
+    price: { label: String, amount: Number, symbol: String },
+    selectedAttributes: Object
   }
 > {
   constructor(props) {
@@ -17,12 +19,14 @@ class ProductView extends Component<
       productId: "",
       product: { gallery: [""], attributes: [] },
       selectedImageIndex: 0,
-      price: { label: "USD", amount: 0, symbol: "$" }
+      price: { label: "USD", amount: 0, symbol: "$" },
+      selectedAttributes: {}
     }
+    this.addProductToCart = this.addProductToCart.bind(this);
   }
   async fetchProductById(id: String) {
     const query = new Query("product").addArgument("id", "String!", id)
-      .addFieldList(["name", "description", "brand", "gallery", "inStock"])
+      .addFieldList(["id", "name", "description", "brand", "gallery", "inStock"])
       .addField(new Field("prices", true).addField(new Field("currency")
         .addField("label")).addField("amount")).addField(new Field("attributes", true)
           .addFieldList(["id", "name", "type"]).addField(new Field("items", true)
@@ -67,16 +71,27 @@ class ProductView extends Component<
       selectedImageIndex: index
     })
   }
-  selectItem(ev) {
+  selectItem(ev, index) {
     const targetedElement = ev.target;
+    const key = targetedElement.attributes['data-attribute-id'].nodeValue;
     const targetElementClasses = targetedElement.classList;
     if (targetElementClasses.contains("selected-text-attribute") ||
       targetElementClasses.contains("selected-swatch-attribute")) {
       targetElementClasses.remove("selected-text-attribute");
       targetElementClasses.remove("selected-swatch-attribute");
+      let selectedAttributes = this.state.selectedAttributes;
+      delete selectedAttributes[key];
+      this.setState({
+        selectedAttributes
+      })
       return;
     }
-
+    const selectedAttributes = {
+      ...this.state.selectedAttributes, [key]: index
+    }
+    this.setState({
+      selectedAttributes
+    })
     const targetParent = targetedElement.parentNode;
     const parentNodeType = targetParent.attributes['data-type'].nodeValue;
     if (parentNodeType === "text") {
@@ -94,11 +109,20 @@ class ProductView extends Component<
   }
   renderAttributeValues(attribute) {
     let attributeValues = attribute.items.map((item, i) => {
-      return <li onClick={this.selectItem} key={i} style={attribute.type === "swatch" ?
+      return <li onClick={(ev) => { this.selectItem(ev, i) }} key={i} style={attribute.type === "swatch" ?
         { background: item.value, border: "1px solid", aspectRatio: "1/1", borderColor: "var(--main-text-color)" } :
-        {}} data-value={item.value}>{attribute.type === "swatch" ? "" : item.value}</li>
+        {}} data-value={item.value} data-attribute-id={attribute.id} data-item-id={item.id}>{attribute.type === "swatch" ? "" : item.value}</li>
     })
     return attributeValues;
+  }
+  addProductToCart() {
+    const product = {
+      ...this.state.product,
+      selectedAttributes: this.state.selectedAttributes,
+      quantity: 1
+    };
+    if (Object.keys(product.selectedAttributes).length !== Object.keys(this.state.product.attributes).length) return; 
+    this.props.ADD_TO_CART(product);
   }
   render() {
     return (
@@ -127,7 +151,7 @@ class ProductView extends Component<
               </div>
             </div>
             <div className='add-to-cart-wrapper'>
-              <button className='add-to-cart-button'>ADD TO CART</button>
+              <button className='add-to-cart-button' onClick={this.addProductToCart}>ADD TO CART</button>
             </div>
             {/* Could add a sanitizer for the description, as its set with innerHTML */}
             <div className='product-description' dangerouslySetInnerHTML={{ __html: this.state.product.description }} />
@@ -139,7 +163,7 @@ class ProductView extends Component<
                   onClick={(ev) => { this.updateSelectedProductImage(ev, index) }} />
               )}
             </div>
-            <img className='selected-product-image'
+            <img className='main-product-image'
               src={this.state.product.gallery[this.state.selectedImageIndex]} alt="Selected Product" />
           </div>
         </div>
@@ -149,7 +173,11 @@ class ProductView extends Component<
 }
 const mapStateToProps = (state) => {
   return {
-    currency: state.currencyReducer.currency
+    currency: state.currencyReducer.currency,
+    cart: state.cartReducer
   };
 };
-export default connect(mapStateToProps, null)(ProductView)
+const mapDispatchToProps = {
+  ADD_TO_CART
+};
+export default connect(mapStateToProps, mapDispatchToProps)(ProductView)
