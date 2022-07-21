@@ -1,7 +1,7 @@
 import { client, DataType, Field, Query } from '@tilework/opus';
 import React, { Component } from 'react';
 import Product from '../components/Product.tsx';
-import "../styles/Products/ProductsView.css";
+import "../styles/Products/ProductsView.scss";
 import arrow from "../assets/dropdown-arrow.svg";
 import capitalizeFirstLetter from '../components/capitalizeFirstLetter.ts';
 import { connect } from 'react-redux';
@@ -25,7 +25,9 @@ class ProductsView extends Component<
         };
     }
     async fetchProductsPerCategory() {
-        const query = new Query("categories", true).addField("name").addField(new Field("products", true).addFieldList(["id", "name", "gallery", "inStock", "brand"])
+        const query = new Query("categories", true).addField("name").addField(new Field("products", true).addFieldList(["id", "name", "gallery", "inStock", "brand"]).addField(new Field("attributes", true)
+        .addFieldList(["id", "name", "type"]).addField(new Field("items", true)
+          .addFieldList(["value", "displayValue", "id"])))
             .addField(new Field("prices", true).addField(new Field("currency", true)
                 .addFieldList(["label", "symbol"])).addField("amount")));
 
@@ -58,13 +60,16 @@ class ProductsView extends Component<
     scrollToTop() {
         window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
     }
+
     render() {
         return (
             <section className='main-content'>
                 <h1 className='products-category'>{capitalizeFirstLetter(this.state.category)}</h1>
                 <div className='catalog'>
+
                     {this.state.products.map((product, index) =>
-                        <Product key={index} product={product} currency={this.state.currency} />
+                            <Product key={index} product={product} currency={this.state.currency} />
+                        
                     )}
                     <div className='scroll-to-top-button' onClick={this.scrollToTop}><img src={arrow} alt="Dropdown arrow icon" height="11" width="11" /></div>
                 </div>

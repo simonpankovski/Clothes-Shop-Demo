@@ -2,20 +2,33 @@ import React, { Component } from "react";
 import { Query } from "@tilework/opus";
 import type { DataType } from "@tilework/opus";
 import { client } from "@tilework/opus";
-import "../styles/NavBar/NavBar.css";
+import "../styles/NavBar/NavBar.scss";
 import logo from "../assets/a-logo.svg";
 import arrow from "../assets/dropdown-arrow.svg";
 import cartIcon from "../assets/cart-icon.svg";
 import { Link } from "react-router-dom";
 import { connect } from "react-redux";
 import { SET_CURRENCY } from '../redux/actions/currency';
+import { ADD_TO_CART, REMOVE_FROM_CART } from "../redux/actions/cart";
+import Cart from "./Cart.tsx";
+const closeCurrencyMenyStyles = {
+  opacity: "1",
+  visibility: "visible",
+  "box-shadow": "rgba(17, 17, 26, 0.05) 0px 1px 0px, rgba(17, 17, 26, 0.06) 0px 0px 8px",
+}
+const openCurrencyMenyStyles = {
+  opacity: "0",
+  visibility: "hidden"
+}
+
 class NavBar extends Component<
   {},
   {
     currencies: Array<any>;
     categories: Array<any>,
     isCurrencyMenuOpen: Boolean,
-    cartCount: Number
+    cartCount: Number,
+    isCartMenuOpen: Boolean
   }
 > {
   constructor(props: any) {
@@ -27,6 +40,7 @@ class NavBar extends Component<
       currencies: [],
       categories: [],
       isCurrencyMenuOpen: false,
+      isCartMenuOpen: false,
       cartCount: 0
     };
   }
@@ -47,24 +61,21 @@ class NavBar extends Component<
     result = await client.post(query);
     return result;
   }
-
-  async toggleCartMenu(ev) {
-    //document.querySelector(".currencies")?.classList.toggle("hidden");
+  setStylesOnElement(styles, element) {
+    Object.assign(element.style, styles);
   }
   toggleCurrenciesMenu() {
     let currencyMenu = document.querySelector(".currencies");
-    let arrow = document.querySelector(".dropdown-arrow");
-    if (currencyMenu === null || arrow === null) return;
+    let arrowIcon = document.querySelector(".dropdown-arrow");
+
+    if (currencyMenu === null || arrowIcon === null) return;
     if (!this.state.isCurrencyMenuOpen) {
-      currencyMenu.style.opacity = "1";
-      currencyMenu.style.visibility = "visible";
-      currencyMenu.style["box-shadow"] = "rgba(17, 17, 26, 0.05) 0px 1px 0px, rgba(17, 17, 26, 0.06) 0px 0px 8px";
-      arrow.style.transform = "scale(1, -1)"
+      this.setStylesOnElement(closeCurrencyMenyStyles, currencyMenu)
+      arrowIcon.style.transform = "scale(1, -1)"
     }
     else {
-      currencyMenu.style.opacity = "0";
-      currencyMenu.style.visibility = "hidden";
-      arrow.style.transform = "";
+      this.setStylesOnElement(openCurrencyMenyStyles, currencyMenu)
+      arrowIcon.style.transform = "";
     }
   }
   async handleCurrenciesMenu(ev) {
@@ -77,18 +88,36 @@ class NavBar extends Component<
     ev.stopPropagation();
     this.toggleCurrenciesMenu();
   }
+  toggleCartMenu() {
+    let cartMenu = document.querySelector(".cart-products");
+    if (cartMenu === null) return;
+    if (!this.state.isCartMenuOpen) {
+      this.setStylesOnElement(closeCurrencyMenyStyles, cartMenu)
+    }
+    else {
+      this.setStylesOnElement(openCurrencyMenyStyles, cartMenu)
+    }
+    this.setState({
+      isCartMenuOpen: !this.state.isCartMenuOpen
+    });
+  }
   closeCurrencyMenuOnDocumentClick() {
     document.addEventListener("click", (ev) => {
-      //console.log(ev.target?.closest(".dropdown-button") != null);
       if (this.state.isCurrencyMenuOpen && ev.target?.closest(".dropdown-button") == null) {
         let currencyMenu = document.querySelector(".currencies");
-        currencyMenu.style.opacity = "0";
-        currencyMenu.style.visibility = "hidden";
+        this.setStylesOnElement(openCurrencyMenyStyles, currencyMenu)
         this.setState({
           isCurrencyMenuOpen: false
         });
         let arrow = document.querySelector(".dropdown-arrow");
         arrow.style.transform = "";
+      }
+      else if(this.state.isCartMenuOpen && ev.target?.closest(".cart-icon") == null){
+        let cartMenu = document.querySelector(".cart-products");
+        this.setStylesOnElement(openCurrencyMenyStyles, cartMenu)
+        this.setState({
+          iscartMenuOpen: false
+        });
       }
     })
   }
@@ -99,25 +128,25 @@ class NavBar extends Component<
     const search = window.location.pathname;
     return search.includes(category?.name);
   }
-  componentDidUpdate(prevProps) {
+  componentDidUpdate() {
     const cartItems = Object.values(this.props.cart).map(item => item.quantity);
-    const prevQuantity = cartItems.reduce((previousValue, currentValue) => { return previousValue + currentValue}, 0)
+    const quantity = cartItems.reduce((previousValue, currentValue) => { return previousValue + currentValue }, 0)
 
-    if (prevQuantity !== this.state.cartCount) {
-      console.log("succ")
+    if (quantity !== this.state.cartCount) {
       this.setState({
-        cartCount: prevQuantity
+        cartCount: quantity
       });
     }
   }
   async componentDidMount() {
+    console.log(this.props.cart)
     let categories = await this.fetchCategories();
     this.closeCurrencyMenuOnDocumentClick()
     categories = categories.categories;
     const cartItems = Object.values(this.props.cart).map(item => item.quantity);
     this.setState({
       categories,
-      cartCount: cartItems.reduce((previousValue, currentValue) => { return previousValue + currentValue}, 0)
+      cartCount: cartItems.reduce((previousValue, currentValue) => { return previousValue + currentValue }, 0)
     });
   }
   toggleSelectedClass(ev, category) {
@@ -127,6 +156,8 @@ class NavBar extends Component<
     ev.target.classList.add("selected-link");
     window.location.href = "/" + category.name
   }
+  
+  
 
   render() {
     return (
@@ -164,13 +195,13 @@ class NavBar extends Component<
               width="20"
             />
             <div className="cart-count"><p>{(this.state.cartCount) > 0 ? this.state.cartCount : ""}</p></div>
-            <div className="cart-items hidden">
-              {this.state.currencies.map((el, index) => (
-                <li className="d-flex jc-space-between" key={index} >
-                  <span >{el.symbol}</span>
-                  <span>{el.label}</span>
-                </li>
-              ))}
+            <div className="cart-products">
+              <p>My Bag. <span>{this.state.cartCount + " Items"}</span></p>
+              <Cart/>
+              <div className="cart-buttons d-flex">
+                <button className="view-bag-button">VIEW BAG</button>
+                <button className="view-bag-button">CHECKOUT</button>
+              </div>
             </div>
           </div>
         </div>
@@ -180,7 +211,13 @@ class NavBar extends Component<
 }
 const mapStateToProps = (state) => {
   return {
-    cart: state.cartReducer.cart
+    cart: state.cartReducer.cart,
+    currency: state.currencyReducer.currency
   };
 };
-export default connect(mapStateToProps, { SET_CURRENCY })(NavBar);
+const mapDispatchToProps = {
+  ADD_TO_CART,
+  REMOVE_FROM_CART,
+  SET_CURRENCY
+};
+export default connect(mapStateToProps, mapDispatchToProps)(NavBar);

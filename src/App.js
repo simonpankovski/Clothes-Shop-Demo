@@ -1,9 +1,7 @@
-import './App.css';
 import { Component } from 'react';
 import { INCREMENT } from './redux/actions/counter'
 import { connect } from "react-redux";
 import { Route, Switch, Redirect } from "react-router-dom";
-//import Counter from './components/Counter';
 import NavBar from './components/NavBar.tsx';
 import ProductsView from './views/ProductsView.tsx';
 import ProductDisplayView from './views/ProductView.tsx';

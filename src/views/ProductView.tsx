@@ -1,8 +1,9 @@
 import React, { Component } from 'react'
 import { client, DataType, Field, Query } from '@tilework/opus';
 import { connect } from "react-redux";
-import '../styles/Products/ProductView.css';
+import '../styles/Products/ProductView.scss';
 import { ADD_TO_CART } from '../redux/actions/cart';
+import Prompt from '../components/Prompt.tsx';
 class ProductView extends Component<
   {},
   {
@@ -10,7 +11,10 @@ class ProductView extends Component<
     product: Object,
     selectedImageIndex: Number,
     price: { label: String, amount: Number, symbol: String },
-    selectedAttributes: Object
+    selectedAttributes: Object,
+    showPrompt: boolean,
+    promptMessage: String,
+    promptValues: Object
   }
 > {
   constructor(props) {
@@ -20,7 +24,13 @@ class ProductView extends Component<
       product: { gallery: [""], attributes: [] },
       selectedImageIndex: 0,
       price: { label: "USD", amount: 0, symbol: "$" },
-      selectedAttributes: {}
+      selectedAttributes: {},
+      showPrompt: false,
+      promptMessage: "",
+      promptValues: {
+        showPrompt: false,
+        promptMessage: "",
+      }
     }
     this.addProductToCart = this.addProductToCart.bind(this);
   }
@@ -116,17 +126,62 @@ class ProductView extends Component<
     return attributeValues;
   }
   addProductToCart() {
+    if (!this.state.product.inStock) {
+      this.setState({
+        promptValues: {
+          promptMessage: "",
+          showPrompt: false
+        }
+      });
+      setTimeout(() => {
+        this.setState({
+          promptValues: {
+            promptMessage: "",
+            showPrompt: false
+          }
+        });
+      }, 3000)
+
+      return;
+    }
     const product = {
       ...this.state.product,
       selectedAttributes: this.state.selectedAttributes,
       quantity: 1
     };
-    if (Object.keys(product.selectedAttributes).length !== Object.keys(this.state.product.attributes).length) return; 
+    if (Object.keys(product.selectedAttributes).length !== Object.keys(this.state.product.attributes).length) {
+      this.setState({
+        promptMessage: "Please select an option for each attribute!",
+        showPrompt: true
+      });
+      setTimeout(() => {
+        this.setState({
+          promptValues: {
+            promptMessage: "",
+            showPrompt: false
+          }
+        });
+      }, 3000)
+      return;
+    }
+    this.setState({
+      promptMessage: "Added item to cart!",
+      showPrompt: true
+    });
     this.props.ADD_TO_CART(product);
+    setTimeout(() => {
+      this.setState({
+        promptValues: {
+          promptMessage: "",
+          showPrompt: false
+        }
+      });
+    }, 3000)
   }
   render() {
     return (
       <div className='product-display-page'>
+        <Prompt prompt={this.state.promptValues} />
         <div className='row'>
           <div className="col-first">
             <div className='product-title'>
@@ -151,7 +206,8 @@ class ProductView extends Component<
               </div>
             </div>
             <div className='add-to-cart-wrapper'>
-              <button className='add-to-cart-button' onClick={this.addProductToCart}>ADD TO CART</button>
+              <button className={'add-to-cart-button ' + (this.state.product.inStock ? "" : "cart-button-out-of-stock")} onClick={this.addProductToCart}
+              >{this.state.product.inStock ? "ADD TO CART" : "OUT OF STOCK"}</button>
             </div>
             {/* Could add a sanitizer for the description, as its set with innerHTML */}
             <div className='product-description' dangerouslySetInnerHTML={{ __html: this.state.product.description }} />
@@ -163,8 +219,11 @@ class ProductView extends Component<
                   onClick={(ev) => { this.updateSelectedProductImage(ev, index) }} />
               )}
             </div>
-            <img className='main-product-image'
-              src={this.state.product.gallery[this.state.selectedImageIndex]} alt="Selected Product" />
+            <div className="product-view-image-wrapper">
+              <img className='main-product-image'
+                src={this.state.product.gallery[this.state.selectedImageIndex]} alt="Selected Product" />
+              <div className={'product-view-out-of-stock ' + (this.state.product.inStock ? "hidden" : "")}>OUT OF STOCK</div>
+            </div>
           </div>
         </div>
       </div>
