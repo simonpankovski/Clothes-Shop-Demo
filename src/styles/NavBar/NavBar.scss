@@ -20,6 +20,12 @@
         padding: 0;
     }
 }
+.navbar-total {
+    margin-top: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
 .selected-currency {
     background-color: var(--hover-gray-color);
 }

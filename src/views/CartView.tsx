@@ -23,20 +23,29 @@ class CartView extends Component<{
         }
     }
     getPriceAmountForProductPerLabel(product) {
-        return product.prices.find(price => price.currency.label === this.props.currency.label).amount
+        const prod = product.prices.find(price => price.currency.label === this.props.currency.label);
+        console.log(prod)
+        return prod.amount
     }
     showCurrencyForProduct(product) {
         return this.getPriceAmountForProductPerLabel(product) + " " + this.props.currency.symbol;
     }
-    componentDidMount() {
-        console.log(this.props)
+    updateTotalPriceAndQuantity(){
         const cartItems = Object.values(this.props.cart);
         const quantity = this.props.quantity;
-        const total = cartItems.reduce((previousValue, currentValue) => { return previousValue + this.getPriceAmountForProductPerLabel(currentValue) }, 0);
+        const total = cartItems.reduce((previousValue, currentValue) => { return previousValue + this.getPriceAmountForProductPerLabel(currentValue) * currentValue.quantity }, 0);
         this.setState({
             quantity,
             total
         })
+    }
+    componentDidUpdate(prevProps) {
+        if(prevProps.quantity !== this.props.quantity) {
+            this.updateTotalPriceAndQuantity()
+        }
+    }
+    componentDidMount() {
+        this.updateTotalPriceAndQuantity()
     }
     getTaxValue() {
         const taxValue = 0.21 * this.state.total;

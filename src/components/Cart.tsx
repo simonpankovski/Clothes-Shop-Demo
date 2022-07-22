@@ -26,7 +26,7 @@ class Cart extends Component<{
     updateSelectedAttributeListItems(selectedAttributes) {
         const classToSelect = (this.props.classToSelect) ? this.props.classToSelect : "";
         let cartItems = document.querySelectorAll(classToSelect + ".cart-attributes");
-        document.querySelectorAll(".cart-attributes li").forEach(item => {
+        document.querySelectorAll(classToSelect + ".cart-attributes li").forEach(item => {
             if(item.attributes.getNamedItem("data-item-type")?.nodeValue === "text") {
                 item['style'].background = "white";
                 item['style'].color = "var(--main-text-color)";

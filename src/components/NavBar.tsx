@@ -33,7 +33,8 @@ class NavBar extends React.Component<
     categories: DeepReadonlyArray<CategoryShape>,
     isCurrencyMenuOpen: Boolean,
     cartCount: Number,
-    isCartMenuOpen: boolean
+    isCartMenuOpen: boolean,
+    total: Number
   }
 > {
   constructor(props: any) {
@@ -46,7 +47,8 @@ class NavBar extends React.Component<
       categories: [],
       isCurrencyMenuOpen: false,
       isCartMenuOpen: false,
-      cartCount: 0
+      cartCount: 0,
+      total: 0
     };
   }
   async fetchCurrencies() {
@@ -117,7 +119,7 @@ class NavBar extends React.Component<
         let arrow = document.querySelector(".dropdown-arrow") as HTMLElement;
         arrow['style'].transform = "";
       }
-      else if(this.state.isCartMenuOpen && (ev.target as HTMLElement)?.closest(".cart-icon") == null){
+      else if (this.state.isCartMenuOpen && (ev.target as HTMLElement)?.closest(".cart-icon") == null) {
         let cartMenu = document.querySelector(".cart-products");
         this.setStylesOnElement(openCurrencyMenyStyles, cartMenu)
         this.setState({
@@ -133,11 +135,22 @@ class NavBar extends React.Component<
     const search = window.location.pathname;
     return search.includes(category?.name);
   }
+  getCartTotalPrice() {
+    const cartItems = Object.values(this.props.cart);
+    return cartItems.reduce((previousValue, currentValue) => { return previousValue + this.getPriceAmountForProductPerLabel(currentValue) * currentValue.quantity }, 0);
+  }
+  getPriceAmountForProductPerLabel(product) {
+    const prod = product.prices.find(price => price.currency.label === this.props.currency.label);
+    console.log(prod)
+    return prod.amount
+  }
+  twoDecimalTrunc = num => Math.trunc(num * 100) / 100;
   componentDidUpdate() {
     const quantity = this.props.quantity;
     if (quantity !== this.state.cartCount) {
       this.setState({
-        cartCount: quantity
+        cartCount: quantity,
+        total: this.getCartTotalPrice()
       });
     }
   }
@@ -148,7 +161,8 @@ class NavBar extends React.Component<
     categories = categories.categories;
     this.setState({
       categories,
-      cartCount: this.props.quantity
+      cartCount: this.props.quantity,
+      total: this.getCartTotalPrice()
     });
   }
   toggleSelectedClass(ev) {
@@ -196,7 +210,8 @@ class NavBar extends React.Component<
             <div className="cart-count"><p>{(this.state.cartCount) > 0 ? this.state.cartCount : ""}</p></div>
             <div className="cart-products">
               <p>My Bag. <span>{this.state.cartCount + " Items"}</span></p>
-              <Cart classToSelect={""}/>
+              <Cart classToSelect={""} />
+              <p className="navbar-total">Total: <span>{this.twoDecimalTrunc(this.state.total)}$</span></p>
               <div className="cart-buttons d-flex">
                 <Link to={"/cart"} className="view-bag-button">VIEW BAG</Link>
                 <button className="view-bag-button">CHECKOUT</button>
