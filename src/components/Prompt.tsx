@@ -1,7 +1,11 @@
 import React, { Component } from 'react'
 
-export default class Prompt extends Component<{}
-    ,
+export default class Prompt extends Component<{
+    prompt: {
+        showPrompt: boolean,
+        promptMessage: String
+    }
+},
     {
         showPrompt: boolean,
         promptMessage: String

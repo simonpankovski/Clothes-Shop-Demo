@@ -1,4 +1,4 @@
-import { client, DataType, Field, Query } from '@tilework/opus';
+import { client, DataType, DeepReadonlyArray, Field, Query } from '@tilework/opus';
 import React, { Component } from 'react';
 import Product from '../components/Product.tsx';
 import "../styles/Products/ProductsView.scss";
@@ -6,10 +6,15 @@ import arrow from "../assets/dropdown-arrow.svg";
 import capitalizeFirstLetter from '../components/capitalizeFirstLetter.ts';
 import { connect } from 'react-redux';
 import { SET_CURRENCY } from '../redux/actions/currency.js';
+import { Currency } from '../types/Category';
+import CartItem from '../types/CartItem';
 class ProductsView extends Component<
-    {},
     {
-        products: Array<any>,
+        currency: Currency,
+        location: any
+    },
+    {
+        products: DeepReadonlyArray<CartItem>,
         category: String,
         currencyIndex: Number,
         currency: Object
@@ -25,9 +30,10 @@ class ProductsView extends Component<
         };
     }
     async fetchProductsPerCategory() {
-        const query = new Query("categories", true).addField("name").addField(new Field("products", true).addFieldList(["id", "name", "gallery", "inStock", "brand"]).addField(new Field("attributes", true)
-        .addFieldList(["id", "name", "type"]).addField(new Field("items", true)
-          .addFieldList(["value", "displayValue", "id"])))
+        const query = new Query("categories", true).addField("name").addField(new Field("products", true)
+            .addFieldList(["id", "name", "gallery", "inStock", "brand"]).addField(new Field("attributes", true)
+                .addFieldList(["id", "name", "type"]).addField(new Field("items", true)
+                    .addFieldList(["value", "displayValue", "id"])))
             .addField(new Field("prices", true).addField(new Field("currency", true)
                 .addFieldList(["label", "symbol"])).addField("amount")));
 
@@ -47,15 +53,22 @@ class ProductsView extends Component<
             currency
         });
     }
-    componentDidUpdate(prevProps) {
+    async componentDidUpdate(prevProps) {
         const propsCurrency = this.props.currency;
-        if (prevProps.currency != propsCurrency) {
+        if (prevProps.currency !== propsCurrency) {
             this.setState({
                 currency: propsCurrency
             })
-            console.log(this.state)
         }
-        console.log("update")
+        else if (prevProps.location.pathname !== this.props.location.pathname) {
+            const productsPerCategory = await this.fetchProductsPerCategory();
+            const category = window.location.pathname.split("/")[1]
+            const products = productsPerCategory.categories.filter(cat => category.includes(cat.name))[0].products;
+            this.setState({
+                products,
+                category,
+            });
+        }
     }
     scrollToTop() {
         window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
@@ -66,10 +79,8 @@ class ProductsView extends Component<
             <section className='main-content'>
                 <h1 className='products-category'>{capitalizeFirstLetter(this.state.category)}</h1>
                 <div className='catalog'>
-
                     {this.state.products.map((product, index) =>
-                            <Product key={index} product={product} currency={this.state.currency} />
-                        
+                        <Product key={index} product={product} currency={this.state.currency} propsObject={this.props} />
                     )}
                     <div className='scroll-to-top-button' onClick={this.scrollToTop}><img src={arrow} alt="Dropdown arrow icon" height="11" width="11" /></div>
                 </div>

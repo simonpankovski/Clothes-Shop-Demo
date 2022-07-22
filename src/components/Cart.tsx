@@ -1,17 +1,53 @@
-import React, { Component } from 'react'
+import React, { Component, DOMElement } from 'react'
 import { connect } from 'react-redux';
 import { ADD_TO_CART, REMOVE_FROM_CART } from '../redux/actions/cart';
-
-class Cart extends Component<{},{
-    cartItems: Array<Object>,
-    total: Number
+import CartItem from "../types/CartItem";
+import { Currency } from '../types/Category.ts';
+class Cart extends Component<{
+    classToSelect: String,
+    ADD_TO_CART: Function,
+    REMOVE_FROM_CART: Function,
+    currency: Currency,
+    quantity: Number,
+    cart: CartItem
+}, {
+    cartItems: Array<CartItem>,
+    total: Number,
+    quantity: Number
 }> {
-    constructor(props){
+    constructor(props) {
         super(props);
         this.state = {
             cartItems: [],
-            total: 0
+            total: 0,
+            quantity: 0
         }
+    }
+    updateSelectedAttributeListItems(selectedAttributes) {
+        const classToSelect = (this.props.classToSelect) ? this.props.classToSelect : "";
+        let cartItems = document.querySelectorAll(classToSelect + ".cart-attributes");
+        document.querySelectorAll(".cart-attributes li").forEach(item => {
+            if(item.attributes.getNamedItem("data-item-type")?.nodeValue === "text") {
+                item['style'].background = "white";
+                item['style'].color = "var(--main-text-color)";
+            }else {
+                item['style'].border = "1px solid" + item['style'].background;
+            }
+        })
+        selectedAttributes.forEach((item, index) => {
+            Array.from(cartItems[index].children).forEach((element: Element) => {
+                const attributeType = element.attributes[1].nodeValue;
+                const attributeIndex = item[element.attributes[2].nodeValue];
+                const selectedElement = element.children[1].children[attributeIndex];
+                if (attributeType === "text") {
+                    selectedElement['style'].background = "var(--main-text-color)";
+                    selectedElement['style'].color = "white";
+                }
+                else {
+                    selectedElement['style'].border = "1px solid var(--main-green-color)";
+                }
+            });
+        })
     }
     handleProductQuantity(ev, item, action) {
         if (action === "increment") {
@@ -25,7 +61,7 @@ class Cart extends Component<{},{
         let attributeValues = attribute.items.map((item, i) => {
             return <li key={i} style={attribute.type === "swatch" ?
                 { background: item.value, border: "1px solid", aspectRatio: "1/1", borderColor: "var(--main-text-color)" } :
-                {}} data-value={item.value} data-attribute-id={attribute.id} data-item-id={item.id}>{attribute.type === "swatch" ? "" : item.value}</li>
+                {}} data-value={item.value} data-item-type={attribute.type} data-attribute-id={attribute.id} data-item-id={item.id}>{attribute.type === "swatch" ? "" : item.value}</li>
         })
         return attributeValues;
     }
@@ -49,15 +85,35 @@ class Cart extends Component<{},{
             cartItems: this.state.cartItems
         })
     }
+    componentDidUpdate(prevProps) {
+        if (Object.keys(prevProps.cart).length !== Object.keys(this.props.cart).length || prevProps.quantity !== this.props.quantity)  {
+            const selectedAttributes = Object.keys(this.props.cart).map(item =>
+                JSON.parse(item.slice(1, item.length - 1))
+            )
+            this.setState({
+                cartItems: Object.values(this.props.cart)
+            }, () => this.updateSelectedAttributeListItems(selectedAttributes))
+        }
+    }
     componentDidMount() {
-        const cartItems = Object.values(this.props.cart);
-        const total = cartItems.reduce((previousValue, currentValue) => { return previousValue + this.getPriceAmountForProductPerLabel(currentValue) }, 0);
-        this.setState({
-            total
-        })
-        // if(!.selectedGalleryIndex) {
-        //     this.props.cart.selectedGalleryIndex = 0;
-        // }
+        if (this.state.cartItems.length === 0) {
+            const selectedAttributes = Object.keys(this.props.cart).map(item =>
+                JSON.parse(item.slice(1, item.length - 1))
+            )
+            Object.values(this.props.cart).forEach(item => {
+                item.selectedGalleryIndex = 0
+            })
+            const cartItems = Object.values(this.props.cart);
+            console.log(cartItems)
+            const quantity = this.props.quantity;
+            const total = cartItems.reduce((previousValue, currentValue) => { return previousValue + this.getPriceAmountForProductPerLabel(currentValue) }, 0);
+            this.setState({
+                cartItems,
+                quantity,
+                total
+            }, () => this.updateSelectedAttributeListItems(selectedAttributes))
+
+        }
     }
     render() {
         return (
@@ -94,9 +150,7 @@ class Cart extends Component<{},{
                                     <div className="previous-image" onClick={(ev) => this.handleGalleryImageChange(ev, item)}>{"<"}</div>
                                     <div className="next-image" onClick={(ev) => this.handleGalleryImageChange(ev, item)}>{">"}</div>
                                 </div> : ""}
-
                             </div>
-
                         </div>
                     </div>
                 ))}
@@ -107,7 +161,8 @@ class Cart extends Component<{},{
 const mapStateToProps = (state) => {
     return {
         cart: state.cartReducer.cart,
-        currency: state.currencyReducer.currency
+        currency: state.currencyReducer.currency,
+        quantity: state.cartReducer.quantity
     };
 };
 const mapDispatchToProps = {

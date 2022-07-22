@@ -1,6 +1,7 @@
 a {
     text-decoration: none;
 }
+
 .add-to-cart-prompt {
     display: flex;
     flex-direction: column;
@@ -17,7 +18,6 @@ a {
         &:hover {
             background: #8f8f8f;
             border-color: #8f8f8f;
-            ;
             cursor: pointer;
             transition: all 0.3s ease-out;
         }
@@ -112,6 +112,7 @@ a {
 @media (min-width: 539px) {
     .product {
         padding: 5%;
+        transition: all 0.3s ease-out;
         &:hover {
             box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
             transition: all 0.3s ease-out;
@@ -130,8 +131,10 @@ a {
                         background: white;
                         border: 2px solid var(--main-green-color);
                         img {
-                            -webkit-filter: none;
-                            filter: none;
+                            -webkit-filter: invert(72%) sepia(6%) saturate(2938%) hue-rotate(84deg) brightness(95%)
+                                contrast(98%);
+                            filter: invert(72%) sepia(6%) saturate(2938%) hue-rotate(84deg) brightness(95%)
+                                contrast(98%);
                         }
                     }
                 }

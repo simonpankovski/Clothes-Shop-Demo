@@ -23,7 +23,6 @@ class App extends Component {
             <Route path="/cart" component={Cart}/>
             <Route path="/product/:id" ><ProductDisplayView /></Route>
             <Route path="/:category" component={ProductsView} />
-            
           </Switch>
         </main>
       </div >

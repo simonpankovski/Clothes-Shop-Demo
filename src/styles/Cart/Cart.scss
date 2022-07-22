@@ -23,17 +23,19 @@
 .cart-title {
     margin-bottom: 3rem;
 }
-.cart-attributes .attribute-values {
-    justify-content: flex-start;
-}
-.cart-attributes .attribute-name {
-    font-family: "Roboto Condensed";
-    font-weight: 700;
-    margin-top: 2rem;
-    font-size: var(--sm-size);
-}
-.cart-attributes .attribute-values li:hover {
-    background: white;
+.cart-attributes {
+    .attribute-values {
+        justify-content: flex-start;
+        li:hover {
+            background: white;
+        }
+    }
+    .attribute-name {
+        font-family: "Roboto Condensed";
+        font-weight: 700;
+        margin-top: 2rem;
+        font-size: var(--sm-size);
+    }
 }
 
 .cart-content {
@@ -85,7 +87,7 @@
         font-size: 1.5rem;
         font-weight: 500;
     }
-    margin-bottom: 1.5rem;
+    margin: 1rem 0;
 }
 .cart-image-controls {
     position: absolute;
@@ -160,5 +162,4 @@
 
 /* Desktop */
 @media (min-width: 1200px) {
-
 }

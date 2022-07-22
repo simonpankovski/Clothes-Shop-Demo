@@ -1,27 +1,32 @@
 import React, { Component } from 'react'
-import { client, DataType, Field, Query } from '@tilework/opus';
+import { client, DataType, DeepReadonlyArray, Field, Query } from '@tilework/opus';
 import { connect } from "react-redux";
 import '../styles/Products/ProductView.scss';
 import { ADD_TO_CART } from '../redux/actions/cart';
 import Prompt from '../components/Prompt.tsx';
+import { Currency } from '../types/Category';
+import CartItem from '../types/CartItem';
 class ProductView extends Component<
-  {},
+  {
+    currency: Currency,
+    ADD_TO_CART: Function
+  },
   {
     productId: String,
-    product: Object,
+    product: CartItem,
     selectedImageIndex: Number,
     price: { label: String, amount: Number, symbol: String },
     selectedAttributes: Object,
     showPrompt: boolean,
     promptMessage: String,
-    promptValues: Object
+    promptValues: Object,
   }
 > {
   constructor(props) {
     super(props);
     this.state = {
       productId: "",
-      product: { gallery: [""], attributes: [] },
+      product: { gallery: [""], attributes: [], prices: [] },
       selectedImageIndex: 0,
       price: { label: "USD", amount: 0, symbol: "$" },
       selectedAttributes: {},
@@ -105,13 +110,13 @@ class ProductView extends Component<
     const targetParent = targetedElement.parentNode;
     const parentNodeType = targetParent.attributes['data-type'].nodeValue;
     if (parentNodeType === "text") {
-      Array.from(targetParent.children).forEach((child, index) => {
+      Array.from(targetParent.children).forEach((child: any, index) => {
         child.classList.remove("selected-text-attribute");
       })
       targetElementClasses.add("selected-text-attribute")
     }
     else {
-      Array.from(targetParent.children).forEach((child, index) => {
+      Array.from(targetParent.children).forEach((child: any, index) => {
         child.classList.remove("selected-swatch-attribute");
       })
       targetElementClasses.add("selected-swatch-attribute")
@@ -129,8 +134,8 @@ class ProductView extends Component<
     if (!this.state.product.inStock) {
       this.setState({
         promptValues: {
-          promptMessage: "",
-          showPrompt: false
+          promptMessage: "The product is out of stock!",
+          showPrompt: true
         }
       });
       setTimeout(() => {
@@ -151,8 +156,10 @@ class ProductView extends Component<
     };
     if (Object.keys(product.selectedAttributes).length !== Object.keys(this.state.product.attributes).length) {
       this.setState({
-        promptMessage: "Please select an option for each attribute!",
-        showPrompt: true
+        promptValues: {
+          promptMessage: "Please select an option for each attribute!",
+          showPrompt: true
+        }
       });
       setTimeout(() => {
         this.setState({
@@ -165,8 +172,10 @@ class ProductView extends Component<
       return;
     }
     this.setState({
-      promptMessage: "Added item to cart!",
-      showPrompt: true
+      promptValues: {
+        promptMessage: "Added item to cart!",
+        showPrompt: true
+      }
     });
     this.props.ADD_TO_CART(product);
     setTimeout(() => {

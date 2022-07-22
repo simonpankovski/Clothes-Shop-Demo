@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Query } from "@tilework/opus";
+import { DeepReadonlyArray, Query } from "@tilework/opus";
 import type { DataType } from "@tilework/opus";
 import { client } from "@tilework/opus";
 import "../styles/NavBar/NavBar.scss";
@@ -11,6 +11,7 @@ import { connect } from "react-redux";
 import { SET_CURRENCY } from '../redux/actions/currency';
 import { ADD_TO_CART, REMOVE_FROM_CART } from "../redux/actions/cart";
 import Cart from "./Cart.tsx";
+import { Category, CategoryShape, Currency } from "../types/Category";
 const closeCurrencyMenyStyles = {
   opacity: "1",
   visibility: "visible",
@@ -21,14 +22,18 @@ const openCurrencyMenyStyles = {
   visibility: "hidden"
 }
 
-class NavBar extends Component<
-  {},
+class NavBar extends React.Component<
   {
-    currencies: Array<any>;
-    categories: Array<any>,
+    SET_CURRENCY: Function,
+    quantity: Number,
+    currency: Currency
+  },
+  {
+    currencies: DeepReadonlyArray<Currency>;
+    categories: DeepReadonlyArray<CategoryShape>,
     isCurrencyMenuOpen: Boolean,
     cartCount: Number,
-    isCartMenuOpen: Boolean
+    isCartMenuOpen: boolean
   }
 > {
   constructor(props: any) {
@@ -71,11 +76,11 @@ class NavBar extends Component<
     if (currencyMenu === null || arrowIcon === null) return;
     if (!this.state.isCurrencyMenuOpen) {
       this.setStylesOnElement(closeCurrencyMenyStyles, currencyMenu)
-      arrowIcon.style.transform = "scale(1, -1)"
+      arrowIcon['style'].transform = "scale(1, -1)"
     }
     else {
       this.setStylesOnElement(openCurrencyMenyStyles, currencyMenu)
-      arrowIcon.style.transform = "";
+      arrowIcon['style'].transform = "";
     }
   }
   async handleCurrenciesMenu(ev) {
@@ -103,16 +108,16 @@ class NavBar extends Component<
   }
   closeCurrencyMenuOnDocumentClick() {
     document.addEventListener("click", (ev) => {
-      if (this.state.isCurrencyMenuOpen && ev.target?.closest(".dropdown-button") == null) {
+      if (this.state.isCurrencyMenuOpen && (ev.target as HTMLElement)?.closest(".dropdown-button") == null) {
         let currencyMenu = document.querySelector(".currencies");
         this.setStylesOnElement(openCurrencyMenyStyles, currencyMenu)
         this.setState({
           isCurrencyMenuOpen: false
         });
-        let arrow = document.querySelector(".dropdown-arrow");
-        arrow.style.transform = "";
+        let arrow = document.querySelector(".dropdown-arrow") as HTMLElement;
+        arrow['style'].transform = "";
       }
-      else if(this.state.isCartMenuOpen && ev.target?.closest(".cart-icon") == null){
+      else if(this.state.isCartMenuOpen && (ev.target as HTMLElement)?.closest(".cart-icon") == null){
         let cartMenu = document.querySelector(".cart-products");
         this.setStylesOnElement(openCurrencyMenyStyles, cartMenu)
         this.setState({
@@ -124,14 +129,12 @@ class NavBar extends Component<
   changeCurrency(ev, el) {
     this.props.SET_CURRENCY(el);
   }
-  isLinkSelected(category: String) {
+  isLinkSelected(category: CategoryShape) {
     const search = window.location.pathname;
     return search.includes(category?.name);
   }
   componentDidUpdate() {
-    const cartItems = Object.values(this.props.cart).map(item => item.quantity);
-    const quantity = cartItems.reduce((previousValue, currentValue) => { return previousValue + currentValue }, 0)
-
+    const quantity = this.props.quantity;
     if (quantity !== this.state.cartCount) {
       this.setState({
         cartCount: quantity
@@ -139,32 +142,28 @@ class NavBar extends Component<
     }
   }
   async componentDidMount() {
-    console.log(this.props.cart)
+    console.log(this.props.currency)
     let categories = await this.fetchCategories();
     this.closeCurrencyMenuOnDocumentClick()
     categories = categories.categories;
-    const cartItems = Object.values(this.props.cart).map(item => item.quantity);
     this.setState({
       categories,
-      cartCount: cartItems.reduce((previousValue, currentValue) => { return previousValue + currentValue }, 0)
+      cartCount: this.props.quantity
     });
   }
-  toggleSelectedClass(ev, category) {
+  toggleSelectedClass(ev) {
     document.querySelectorAll(".navbar-links a").forEach(el => {
       el.classList.remove("selected-link");
     })
     ev.target.classList.add("selected-link");
-    window.location.href = "/" + category.name
   }
-  
-  
 
   render() {
     return (
       <div className="app-navbar d-flex ai-c jc-space-between">
         <div className="navbar-links">
           {this.state.categories.map((category, index) => (
-            <Link key={index} onClick={ev => this.toggleSelectedClass(ev, category)} className={this.isLinkSelected(category) ? "selected-link" : ""} to={"/" + category.name}>
+            <Link key={index} onClick={ev => this.toggleSelectedClass(ev)} className={this.isLinkSelected(category) ? "selected-link" : ""} to={"/" + category.name}>
               {category.name.toUpperCase()}</Link>
           ))}
         </div>
@@ -180,7 +179,7 @@ class NavBar extends Component<
             <img className="dropdown-arrow" src={arrow} alt="Dropdown arrow icon" height="11" width="11" />
             <div className="currencies">
               {this.state.currencies.map((el, index) => (
-                <li className="d-flex jc-space-between" onClick={(ev) => { this.changeCurrency(ev, el) }} key={index}>
+                <li className={"d-flex jc-space-between " + (this.props.currency.label === el.label ? "selected-currency" : "")} onClick={(ev) => { this.changeCurrency(ev, el) }} key={index}>
                   <span>{el.symbol}</span>
                   <span>{el.label}</span>
                 </li>
@@ -197,9 +196,9 @@ class NavBar extends Component<
             <div className="cart-count"><p>{(this.state.cartCount) > 0 ? this.state.cartCount : ""}</p></div>
             <div className="cart-products">
               <p>My Bag. <span>{this.state.cartCount + " Items"}</span></p>
-              <Cart/>
+              <Cart classToSelect={""}/>
               <div className="cart-buttons d-flex">
-                <button className="view-bag-button">VIEW BAG</button>
+                <Link to={"/cart"} className="view-bag-button">VIEW BAG</Link>
                 <button className="view-bag-button">CHECKOUT</button>
               </div>
             </div>
@@ -212,7 +211,8 @@ class NavBar extends Component<
 const mapStateToProps = (state) => {
   return {
     cart: state.cartReducer.cart,
-    currency: state.currencyReducer.currency
+    currency: state.currencyReducer.currency,
+    quantity: state.cartReducer.quantity
   };
 };
 const mapDispatchToProps = {

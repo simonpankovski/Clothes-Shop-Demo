@@ -1,30 +1,43 @@
-import React, { Component } from 'react';
+import { Component } from 'react';
 import { Link } from "react-router-dom";
 import '../styles/Products/Product.scss';
 import cartIcon from "../assets/cart-icon.svg";
-import { client, DataType, Field, Query } from '@tilework/opus';
 import { connect } from 'react-redux';
 import { ADD_TO_CART } from '../redux/actions/cart';
-class Product extends Component<{}, {
+import Prompt from '../components/Prompt.tsx';
+import React from 'react';
+import CartItem from '../types/CartItem.ts';
+import { Currency } from '../types/Category';
+class Product extends React.Component<{
+    product: CartItem,
+    currency: Currency,
+    propsObject: any,
+    ADD_TO_CART: Function
+}, {
     attributes: Array<any>,
     selectedAttributes: Object,
-    displayAddToCartPrompt: boolean,
-    quantity: Number
+    displayAddToCartOverlay: boolean,
+    quantity: Number,
+    promptValues: Object
 }> {
-    constructor(props) {
+    constructor(props: any) {
         super(props);
         this.state = {
             attributes: [],
             selectedAttributes: {},
-            displayAddToCartPrompt: false,
-            quantity: 1
+            displayAddToCartOverlay: false,
+            quantity: 1,
+            promptValues: {
+                showPrompt: false,
+                promptMessage: "",
+            }
         }
         this.addProductToCart = this.addProductToCart.bind(this);
     }
     isProductInStock() {
         return this.props.product.inStock;
     }
-    showCurrencyForProduct(currency) {
+    showCurrencyForProduct() {
         return this.props.product.prices.find(price => price.currency.label === this.props.currency.label).amount + " " + this.props.currency.symbol;
     }
     handleRedirect(ev, id) {
@@ -32,18 +45,18 @@ class Product extends Component<{}, {
         ev.stopPropagation();
         if (Array.from(ev.target.classList).includes("class-icon-identifier")) {
             this.setState({
-                displayAddToCartPrompt: !this.state.displayAddToCartPrompt
+                displayAddToCartOverlay: !this.state.displayAddToCartOverlay
             })
         }
         else if (Array.from(ev.currentTarget.classList).includes("add-to-cart-prompt")) {
             if (Array.from(ev?.target.classList).includes("close-cart-overlay")) {
                 this.setState({
-                    displayAddToCartPrompt: !this.state.displayAddToCartPrompt
+                    displayAddToCartOverlay: !this.state.displayAddToCartOverlay
                 })
             }
         }
         else {
-            window.location.href = "/product/" + id;
+            this.props.propsObject.history.push("/product/" + id)
         }
     }
     addProductToCart() {
@@ -52,26 +65,32 @@ class Product extends Component<{}, {
             selectedAttributes: this.state.selectedAttributes,
             quantity: this.state.quantity
         };
-        console.log(product)
-        if (Object.keys(product.selectedAttributes).length !== Object.keys(this.props.product.attributes).length) return;
 
-        // this.setState({
-        //   promptMessage: "Added item to cart!",
-        //   showPrompt: true
-        // });
+        if (Object.keys(product.selectedAttributes).length !== Object.keys(this.props.product.attributes).length) {
+            return;
+        }
+
+        this.setState({
+            promptValues: {
+                promptMessage: "Added item to cart!",
+                showPrompt: true
+            }
+        });
         this.props.ADD_TO_CART(product);
-        // setTimeout(() => {
-        //   this.setState({
-        //     promptMessage: "",
-        //     showPrompt: false
-        //   });
-        // }, 3000)
+        setTimeout(() => {
+            this.setState({
+                promptValues: {
+                    promptMessage: "",
+                    showPrompt: false
+                }
+            });
+        }, 3000)
     }
     async componentDidMount() {
         const attributes = this.props.product.attributes;
         this.setState({
             attributes: attributes
-        })
+        });
     }
     selectItem(ev, index) {
         const targetedElement = ev.target;
@@ -97,13 +116,13 @@ class Product extends Component<{}, {
         const targetParent = targetedElement.parentNode;
         const parentNodeType = targetParent.attributes['data-type'].nodeValue;
         if (parentNodeType === "text") {
-            Array.from(targetParent.children).forEach((child, index) => {
+            Array.from(targetParent.children).forEach((child: any, index) => {
                 child.classList.remove("selected-text-attribute");
             })
             targetElementClasses.add("selected-text-attribute")
         }
         else {
-            Array.from(targetParent.children).forEach((child, index) => {
+            Array.from(targetParent.children).forEach((child: any, index) => {
                 child.classList.remove("selected-swatch-attribute");
             })
             targetElementClasses.add("selected-swatch-attribute")
@@ -121,7 +140,8 @@ class Product extends Component<{}, {
     render() {
         return (
             <Link to={"/product/" + this.props.product.id} className="product-component" onClick={ev => { this.handleRedirect(ev, this.props.product.id) }}>
-                {this.state.displayAddToCartPrompt ?
+                <Prompt prompt={this.state.promptValues} className="product-prompt" />
+                {this.state.displayAddToCartOverlay ?
                     <div className='add-to-cart-prompt' onClick={ev => { this.handleRedirect(ev, this.props.product.id) }}>
                         <div className='product-attributes'>
                             {this.state.attributes.map((attribute, index) =>
@@ -155,7 +175,12 @@ class Product extends Component<{}, {
         )
     }
 }
+const mapStateToProps = (state) => {
+    return {
+        currency: state.currencyReducer.currency
+    };
+};
 const mapDispatchToProps = {
     ADD_TO_CART
 };
-export default connect(null, mapDispatchToProps)(Product);
+export default connect(mapStateToProps, mapDispatchToProps)(Product);
