@@ -1,11 +1,12 @@
 import React, { Component } from 'react'
-import { client, DataType, DeepReadonlyArray, Field, Query } from '@tilework/opus';
+import { client, DataType, Field, Query } from '@tilework/opus';
 import { connect } from "react-redux";
 import '../styles/Products/ProductView.scss';
 import { ADD_TO_CART } from '../redux/actions/cart';
 import Prompt from '../components/Prompt.tsx';
 import { Currency } from '../types/Category';
 import CartItem from '../types/CartItem';
+import { Markup } from 'interweave';
 class ProductView extends Component<
   {
     currency: Currency,
@@ -67,7 +68,7 @@ class ProductView extends Component<
   }
   async componentDidMount() {
     const productId = window.location.pathname.split("/")[2];
-    const product = await this.fetchProductById(productId)
+    const product = await this.fetchProductById(productId);
     const productObject = product.product;
     const productPrice = productObject.prices.find((element, index) =>
       element.currency.label === this.props.currency.label)?.amount;
@@ -219,7 +220,9 @@ class ProductView extends Component<
               >{this.state.product.inStock ? "ADD TO CART" : "OUT OF STOCK"}</button>
             </div>
             {/* Could add a sanitizer for the description, as its set with innerHTML */}
-            <div className='product-description' dangerouslySetInnerHTML={{ __html: this.state.product.description }} />
+            <div className='product-description'>
+              <Markup content={this.state.product.description} />
+            </div>
           </div>
           <div className="col-last">
             <div className='gallery-images'>

@@ -9,9 +9,9 @@ import cartIcon from "../assets/cart-icon.svg";
 import { Link } from "react-router-dom";
 import { connect } from "react-redux";
 import { SET_CURRENCY } from '../redux/actions/currency';
-import { ADD_TO_CART, REMOVE_FROM_CART } from "../redux/actions/cart";
+import { ADD_TO_CART, REMOVE_FROM_CART, TOGGLE_CART_MENU, CLOSE_CART_MENU } from "../redux/actions/cart";
 import Cart from "./Cart.tsx";
-import { Category, CategoryShape, Currency } from "../types/Category";
+import { CategoryShape, Currency } from "../types/Category";
 const closeCurrencyMenyStyles = {
   opacity: "1",
   visibility: "visible",
@@ -25,6 +25,7 @@ const openCurrencyMenyStyles = {
 class NavBar extends React.Component<
   {
     SET_CURRENCY: Function,
+    TOGGLE_CART_MENU: Function,
     quantity: Number,
     currency: Currency
   },
@@ -42,6 +43,10 @@ class NavBar extends React.Component<
     this.handleCurrenciesMenu = this.handleCurrenciesMenu.bind(this);
     this.toggleCartMenu = this.toggleCartMenu.bind(this);
     this.changeCurrency = this.changeCurrency.bind(this);
+    this.currencyMenu = React.createRef();
+    this.dropdownArrow = React.createRef();
+    this.cartProducts = React.createRef();
+    this.navbarLinks = React.createRef();
     this.state = {
       currencies: [],
       categories: [],
@@ -72,8 +77,8 @@ class NavBar extends React.Component<
     Object.assign(element.style, styles);
   }
   toggleCurrenciesMenu() {
-    let currencyMenu = document.querySelector(".currencies");
-    let arrowIcon = document.querySelector(".dropdown-arrow");
+    let currencyMenu = this.currencyMenu.current;
+    let arrowIcon = this.dropdownArrow.current;
 
     if (currencyMenu === null || arrowIcon === null) return;
     if (!this.state.isCurrencyMenuOpen) {
@@ -95,36 +100,37 @@ class NavBar extends React.Component<
     ev.stopPropagation();
     this.toggleCurrenciesMenu();
   }
-  toggleCartMenu() {
-    let cartMenu = document.querySelector(".cart-products");
-    if (cartMenu === null) return;
-    if (!this.state.isCartMenuOpen) {
+  toggleCartMenu(ev) {
+    let cartMenu = this.cartProducts.current;
+    if (cartMenu === null || ev?.target.classList.contains("adjust-quantity")) return;
+    this.props.TOGGLE_CART_MENU();
+
+    if (!this.props.isCartMenuOpen) {
       this.setStylesOnElement(closeCurrencyMenyStyles, cartMenu)
+      document.body.style.overflowY = "hidden";
     }
     else {
       this.setStylesOnElement(openCurrencyMenyStyles, cartMenu)
+      document.body.style.overflowY = "auto";
     }
-    this.setState({
-      isCartMenuOpen: !this.state.isCartMenuOpen
-    });
   }
   closeCurrencyMenuOnDocumentClick() {
-    document.addEventListener("click", (ev) => {
-      if (this.state.isCurrencyMenuOpen && (ev.target as HTMLElement)?.closest(".dropdown-button") == null) {
-        let currencyMenu = document.querySelector(".currencies");
+    document.addEventListener("pointerdown", (ev) => {
+      if (this.state.isCurrencyMenuOpen && (ev.target as HTMLElement)?.closest(".dropdown-button") === null) {
+        let currencyMenu = this.currencyMenu.current;
         this.setStylesOnElement(openCurrencyMenyStyles, currencyMenu)
         this.setState({
           isCurrencyMenuOpen: false
         });
-        let arrow = document.querySelector(".dropdown-arrow") as HTMLElement;
+        let arrow = this.dropdownArrow.current as HTMLElement;
         arrow['style'].transform = "";
       }
-      else if (this.state.isCartMenuOpen && (ev.target as HTMLElement)?.closest(".cart-icon") == null) {
-        let cartMenu = document.querySelector(".cart-products");
-        this.setStylesOnElement(openCurrencyMenyStyles, cartMenu)
-        this.setState({
-          iscartMenuOpen: false
-        });
+      else if (this.props.isCartMenuOpen && (ev.target as HTMLElement)?.closest(".cart-icon") === null) {
+        console.log("b")
+        let cartMenu = this.cartProducts.current;
+        document.body.style.overflowY = "auto";
+        this.props.CLOSE_CART_MENU();
+        this.setStylesOnElement(openCurrencyMenyStyles, cartMenu);
       }
     })
   }
@@ -141,32 +147,37 @@ class NavBar extends React.Component<
   }
   getPriceAmountForProductPerLabel(product) {
     const prod = product.prices.find(price => price.currency.label === this.props.currency.label);
-    console.log(prod)
     return prod.amount
   }
   twoDecimalTrunc = num => Math.trunc(num * 100) / 100;
-  componentDidUpdate() {
+  componentDidUpdate(prevProps) {
     const quantity = this.props.quantity;
     if (quantity !== this.state.cartCount) {
       this.setState({
         cartCount: quantity,
+        total: this.getCartTotalPrice(),
+        isCartMenuOpen: this.props.isCartMenuOpen
+      });
+    }
+    else if (prevProps.currency !== this.props.currency) {
+      this.setState({
         total: this.getCartTotalPrice()
       });
     }
   }
   async componentDidMount() {
-    console.log(this.props.currency)
     let categories = await this.fetchCategories();
     this.closeCurrencyMenuOnDocumentClick()
     categories = categories.categories;
     this.setState({
       categories,
       cartCount: this.props.quantity,
-      total: this.getCartTotalPrice()
-    });
+      total: this.getCartTotalPrice(),
+      isCartMenuOpen: this.props.isCartMenuOpen
+    }, this.toggleCartMenu);
   }
   toggleSelectedClass(ev) {
-    document.querySelectorAll(".navbar-links a").forEach(el => {
+    Array.from(this.navbarLinks.current.children).forEach(el => {
       el.classList.remove("selected-link");
     })
     ev.target.classList.add("selected-link");
@@ -175,7 +186,7 @@ class NavBar extends React.Component<
   render() {
     return (
       <div className="app-navbar d-flex ai-c jc-space-between">
-        <div className="navbar-links">
+        <div className="navbar-links" ref={this.navbarLinks}>
           {this.state.categories.map((category, index) => (
             <Link key={index} onClick={ev => this.toggleSelectedClass(ev)} className={this.isLinkSelected(category) ? "selected-link" : ""} to={"/" + category.name}>
               {category.name.toUpperCase()}</Link>
@@ -190,8 +201,8 @@ class NavBar extends React.Component<
             onClick={this.handleCurrenciesMenu}
           >
             <p className="dollar-icon">$</p>
-            <img className="dropdown-arrow" src={arrow} alt="Dropdown arrow icon" height="11" width="11" />
-            <div className="currencies">
+            <img className="dropdown-arrow" src={arrow} ref={this.dropdownArrow} alt="Dropdown arrow icon" height="11" width="11" />
+            <div className="currencies" ref={this.currencyMenu}>
               {this.state.currencies.map((el, index) => (
                 <li className={"d-flex jc-space-between " + (this.props.currency.label === el.label ? "selected-currency" : "")} onClick={(ev) => { this.changeCurrency(ev, el) }} key={index}>
                   <span>{el.symbol}</span>
@@ -208,10 +219,10 @@ class NavBar extends React.Component<
               width="20"
             />
             <div className="cart-count"><p>{(this.state.cartCount) > 0 ? this.state.cartCount : ""}</p></div>
-            <div className="cart-products">
+            <div className="cart-products" ref={this.cartProducts}>
               <p>My Bag. <span>{this.state.cartCount + " Items"}</span></p>
               <Cart classToSelect={""} />
-              <p className="navbar-total">Total: <span>{this.twoDecimalTrunc(this.state.total)}$</span></p>
+              <p className="navbar-total">Total: <span>{this.twoDecimalTrunc(this.state.total)}{this.props.currency.symbol}</span></p>
               <div className="cart-buttons d-flex">
                 <Link to={"/cart"} className="view-bag-button">VIEW BAG</Link>
                 <button className="view-bag-button">CHECKOUT</button>
@@ -227,12 +238,15 @@ const mapStateToProps = (state) => {
   return {
     cart: state.cartReducer.cart,
     currency: state.currencyReducer.currency,
-    quantity: state.cartReducer.quantity
+    quantity: state.cartReducer.quantity,
+    isCartMenuOpen: state.cartReducer.isCartMenuOpen
   };
 };
 const mapDispatchToProps = {
   ADD_TO_CART,
   REMOVE_FROM_CART,
-  SET_CURRENCY
+  SET_CURRENCY,
+  TOGGLE_CART_MENU,
+  CLOSE_CART_MENU
 };
 export default connect(mapStateToProps, mapDispatchToProps)(NavBar);

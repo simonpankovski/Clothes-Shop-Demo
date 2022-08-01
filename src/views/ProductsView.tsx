@@ -29,8 +29,8 @@ class ProductsView extends Component<
             currency: { label: "USD", symbol: "$" }
         };
     }
-    async fetchProductsPerCategory() {
-        const query = new Query("categories", true).addField("name").addField(new Field("products", true)
+    async fetchProductsPerCategory(category: String) {
+        const query = new Query("category").addArgument("input", "CategoryInput", {title: category}).addField("name").addField(new Field("products", true)
             .addFieldList(["id", "name", "gallery", "inStock", "brand"]).addField(new Field("attributes", true)
                 .addFieldList(["id", "name", "type"]).addField(new Field("items", true)
                     .addFieldList(["value", "displayValue", "id"])))
@@ -43,12 +43,12 @@ class ProductsView extends Component<
         return result;
     }
     async componentDidMount() {
-        const productsPerCategory = await this.fetchProductsPerCategory();
+        //const productsPerCategory = 
         const category = window.location.pathname.split("/")[1]
-        const products = productsPerCategory.categories.filter(cat => category.includes(cat.name))[0].products;
+        const products = await this.fetchProductsPerCategory(category);
         const currency = this.props.currency;
         this.setState({
-            products,
+            products: products.category.products,
             category,
             currency
         });
@@ -61,11 +61,10 @@ class ProductsView extends Component<
             })
         }
         else if (prevProps.location.pathname !== this.props.location.pathname) {
-            const productsPerCategory = await this.fetchProductsPerCategory();
             const category = window.location.pathname.split("/")[1]
-            const products = productsPerCategory.categories.filter(cat => category.includes(cat.name))[0].products;
+            const products = await this.fetchProductsPerCategory(category);
             this.setState({
-                products,
+                products: products.category.products,
                 category,
             });
         }

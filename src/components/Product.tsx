@@ -129,7 +129,6 @@ class Product extends React.Component<{
         }
     }
     renderAttributeValues(attribute) {
-        //console.log(attribute)
         let attributeValues = attribute.items.map((item, i) => {
             return <li onClick={(ev) => { this.selectItem(ev, i) }} key={i} style={attribute.type === "swatch" ?
                 { background: item.value, border: "1px solid", aspectRatio: "1/1", borderColor: "var(--main-text-color)" } :

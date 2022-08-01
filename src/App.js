@@ -1,5 +1,5 @@
 import { Component } from 'react';
-import { INCREMENT } from './redux/actions/counter'
+import { INCREMENT } from './redux/actions/counter';
 import { connect } from "react-redux";
 import { Route, Switch, Redirect } from "react-router-dom";
 import NavBar from './components/NavBar.tsx';
@@ -14,8 +14,7 @@ class App extends Component {
           <NavBar />
         </header>
         <main>
-          {/* <h2>Count: {this.props.count}</h2>
-          <Counter /> */}
+          <div className={(this.props.isCartMenuOpen ? 'cart-content-overlay' : '')}></div>
           <Switch>
             <Route exact path="/">
               <Redirect to="/all" />
@@ -31,7 +30,8 @@ class App extends Component {
 }
 const mapStateToProps = (state) => {
   return {
-    count: state.counterReducer.count
+    count: state.counterReducer.count,
+    isCartMenuOpen: state.cartReducer.isCartMenuOpen
   };
 };
 const mapDispatchToProps = {

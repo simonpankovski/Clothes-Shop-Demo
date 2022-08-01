@@ -17,6 +17,8 @@ class Cart extends Component<{
 }> {
     constructor(props) {
         super(props);
+        this.cartAttributes = new Array(Object.values(this.props.cart).length).fill(React.createRef());
+        this.cartListItems = {};
         this.state = {
             cartItems: [],
             total: 0,
@@ -24,13 +26,13 @@ class Cart extends Component<{
         }
     }
     updateSelectedAttributeListItems(selectedAttributes) {
-        const classToSelect = (this.props.classToSelect) ? this.props.classToSelect : "";
-        let cartItems = document.querySelectorAll(classToSelect + ".cart-attributes");
-        document.querySelectorAll(classToSelect + ".cart-attributes li").forEach(item => {
-            if(item.attributes.getNamedItem("data-item-type")?.nodeValue === "text") {
+        let cartItems = this.cartAttributes;
+        Object.values(this.cartListItems).forEach(item => {
+            if(!item) return;
+            if (item.attributes.getNamedItem("data-item-type")?.nodeValue === "text") {
                 item['style'].background = "white";
                 item['style'].color = "var(--main-text-color)";
-            }else {
+            } else {
                 item['style'].border = "1px solid" + item['style'].background;
             }
         })
@@ -59,9 +61,10 @@ class Cart extends Component<{
     }
     renderAttributeValues(attribute) {
         let attributeValues = attribute.items.map((item, i) => {
-            return <li key={i} style={attribute.type === "swatch" ?
+            return <li key={i} ref={ref => this.cartListItems[item.id] = ref} style={attribute.type === "swatch" ?
                 { background: item.value, border: "1px solid", aspectRatio: "1/1", borderColor: "var(--main-text-color)" } :
-                {}} data-value={item.value} data-item-type={attribute.type} data-attribute-id={attribute.id} data-item-id={item.id}>{attribute.type === "swatch" ? "" : item.value}</li>
+                {}} data-value={item.value} data-item-type={attribute.type} data-attribute-id={attribute.id}
+                data-item-id={item.id}>{attribute.type === "swatch" ? "" : item.value}</li>
         })
         return attributeValues;
     }
@@ -86,13 +89,27 @@ class Cart extends Component<{
         })
     }
     componentDidUpdate(prevProps) {
-        if (Object.keys(prevProps.cart).length !== Object.keys(this.props.cart).length || prevProps.quantity !== this.props.quantity)  {
+        if (Object.keys(prevProps.cart).length !== Object.keys(this.props.cart).length || prevProps.quantity !== this.props.quantity) {
             const selectedAttributes = Object.keys(this.props.cart).map(item =>
                 JSON.parse(item.slice(1, item.length - 1))
             )
+            const cartItems = Object.values(this.props.cart);
+            const total = cartItems.reduce((previousValue, currentValue) => {
+                return previousValue + this.getPriceAmountForProductPerLabel(currentValue)
+            }, 0);
             this.setState({
-                cartItems: Object.values(this.props.cart)
+                cartItems: Object.values(this.props.cart),
+                total
             }, () => this.updateSelectedAttributeListItems(selectedAttributes))
+        }
+        else if (prevProps.currency !== this.props.currency) {
+            const cartItems = Object.values(this.props.cart);
+            const total = cartItems.reduce((previousValue, currentValue) => {
+                return previousValue + this.getPriceAmountForProductPerLabel(currentValue)
+            }, 0);
+            this.setState({
+                total
+            })
         }
     }
     componentDidMount() {
@@ -104,9 +121,10 @@ class Cart extends Component<{
                 item.selectedGalleryIndex = 0
             })
             const cartItems = Object.values(this.props.cart);
-            console.log(cartItems)
             const quantity = this.props.quantity;
-            const total = cartItems.reduce((previousValue, currentValue) => { return previousValue + this.getPriceAmountForProductPerLabel(currentValue) }, 0);
+            const total = cartItems.reduce((previousValue, currentValue) => {
+                return previousValue + this.getPriceAmountForProductPerLabel(currentValue)
+            }, 0);
             this.setState({
                 cartItems,
                 quantity,
@@ -125,9 +143,10 @@ class Cart extends Component<{
                                 <h3>{item.brand}</h3>
                                 <h3>{item.name}</h3>
                                 <p className='cart-item-price'>{this.showCurrencyForProduct(item)}</p>
-                                <div className='cart-attributes'>
+                                <div className='cart-attributes' ref={ref => this.cartAttributes[index] = ref}>
                                     {item.attributes.map((attribute, index) =>
-                                        <div className='product-attribute' key={index} data-attribute-type={attribute.type} data-attribute-name={attribute.name}>
+                                        <div className='product-attribute' key={index}
+                                            data-attribute-type={attribute.type} data-attribute-name={attribute.name}>
                                             <p className='attribute-name' key={index}>{attribute.name.toUpperCase() + ":"}</p>
                                             <ul className='attribute-values' data-type={attribute.type}>
                                                 {this.renderAttributeValues(attribute)}
@@ -145,7 +164,8 @@ class Cart extends Component<{
                                 <div className='adjust-quantity' onClick={(ev) => this.handleProductQuantity(ev, item, "decrement")}>-</div>
                             </div>
                             <div className="image-display">
-                                <img src={item.gallery[(item.selectedGalleryIndex) ? item.selectedGalleryIndex : 0]} alt="Cart selected gallery item" />
+                                <img src={item.gallery[(item.selectedGalleryIndex) ?
+                                    item.selectedGalleryIndex : 0]} alt="Cart selected gallery item" />
                                 {item.gallery.length > 1 ? <div className='cart-image-controls'>
                                     <div className="previous-image" onClick={(ev) => this.handleGalleryImageChange(ev, item)}>{"<"}</div>
                                     <div className="next-image" onClick={(ev) => this.handleGalleryImageChange(ev, item)}>{">"}</div>

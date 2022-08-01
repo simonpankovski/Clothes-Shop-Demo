@@ -1,6 +1,7 @@
 const initialState = {
     cart: {},
-    quantity: 0
+    quantity: 0,
+    isCartMenuOpen: false
 };
 const getCart = (state, action) => {
     let objId = { id: action.payload.id, ...action.payload.selectedAttributes };
@@ -32,6 +33,10 @@ const cartReducer = (state = initialState, action) => {
                 cartObj1[idString1].quantity = cartObj1[idString1].quantity - 1;
             }
             return { ...state, cart: cartObj1, quantity: state.quantity - 1 };
+        case "TOGGLE_CART_MENU":
+            return { ...state, isCartMenuOpen: !state.isCartMenuOpen};
+        case "CLOSE_CART_MENU":
+            return { ...state, isCartMenuOpen: false};
         default:
             return state;
     }

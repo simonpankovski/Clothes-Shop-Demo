@@ -24,7 +24,6 @@ class CartView extends Component<{
     }
     getPriceAmountForProductPerLabel(product) {
         const prod = product.prices.find(price => price.currency.label === this.props.currency.label);
-        console.log(prod)
         return prod.amount
     }
     showCurrencyForProduct(product) {
@@ -40,7 +39,7 @@ class CartView extends Component<{
         })
     }
     componentDidUpdate(prevProps) {
-        if(prevProps.quantity !== this.props.quantity) {
+        if(prevProps.quantity !== this.props.quantity || prevProps.currency !== this.props.currency) {
             this.updateTotalPriceAndQuantity()
         }
     }
