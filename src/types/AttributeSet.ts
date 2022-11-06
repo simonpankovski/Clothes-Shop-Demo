@@ -8,6 +8,7 @@ export enum AttributeType {
 
 export default interface AttributeSet {
     id: String;
+    name: String;
     items: Array<Attribute>;
     type: AttributeType.text;
 }

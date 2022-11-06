@@ -1,25 +1,18 @@
-import React, { Component } from 'react'
+import PromptType from "../types/Prompt";
 
-export default class Prompt extends Component<{
-    prompt: {
-        showPrompt: boolean,
-        promptMessage: String
-    }
-},
-    {
-        showPrompt: boolean,
-        promptMessage: String
-    }> {
-    constructor(props) {
-        super(props);
-        this.state = {
-            showPrompt: false,
-            promptMessage: ""
-        }
-    }
-    render() {
-        return (
-            <div className='prompt' hidden={!this.props.prompt.showPrompt}>{this.props.prompt.promptMessage}</div>
-        )
-    }
+interface Props {
+  prompt: PromptType,
+  className?: string
+}
+export default function Prompt(props: Props) {
+  return (
+    <div
+      role="dialog"
+      aria-describedby="dialogDesc"
+      className="prompt"
+      hidden={!props.prompt.showPrompt}
+    >
+      <p id="dialog1Desc">{props.prompt.promptMessage}</p>
+    </div>
+  );
 }

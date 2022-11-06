@@ -1,5 +1,6 @@
 export default interface Attribute {
-        displayValue: string,
+        displayValue?: string,
         value?: string,
-        id?: string
+        id?: string,
+        [index: string]: any
 }

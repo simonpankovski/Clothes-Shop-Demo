@@ -1,80 +1,81 @@
-import React, { Component } from 'react'
-import { connect } from 'react-redux'
-import { ADD_TO_CART, REMOVE_FROM_CART } from '../redux/actions/cart';
-import '../styles/Cart/Cart.scss';
-import Cart from '../components/Cart.tsx';
-import { Currency } from '../types/Category';
-import CartItem from '../types/CartItem';
-class CartView extends Component<{
-    currency: Currency,
-    cart: CartItem,
-    quantity: Number
-}, {
-    cartItems: Array<Object>,
-    quantity: Number,
-    total: Number
-}> {
-    constructor(props) {
-        super(props);
-        this.state = {
-            cartItems: [],
-            quantity: 0,
-            total: 0
-        }
-    }
-    getPriceAmountForProductPerLabel(product) {
-        const prod = product.prices.find(price => price.currency.label === this.props.currency.label);
-        return prod.amount
-    }
-    showCurrencyForProduct(product) {
-        return this.getPriceAmountForProductPerLabel(product) + " " + this.props.currency.symbol;
-    }
-    updateTotalPriceAndQuantity(){
-        const cartItems = Object.values(this.props.cart);
-        const quantity = this.props.quantity;
-        const total = cartItems.reduce((previousValue, currentValue) => { return previousValue + this.getPriceAmountForProductPerLabel(currentValue) * currentValue.quantity }, 0);
-        this.setState({
-            quantity,
-            total
-        })
-    }
-    componentDidUpdate(prevProps) {
-        if(prevProps.quantity !== this.props.quantity || prevProps.currency !== this.props.currency) {
-            this.updateTotalPriceAndQuantity()
-        }
-    }
-    componentDidMount() {
-        this.updateTotalPriceAndQuantity()
-    }
-    getTaxValue() {
-        const taxValue = 0.21 * this.state.total;
-        return this.props.currency.symbol + this.twoDecimalTrunc(taxValue);
-    }
-    twoDecimalTrunc = num => Math.trunc(num * 100) / 100;
-    render() {
-        return (
-            <div className='main-content cart-content'>
-                <h1 className='cart-title'>Cart</h1>
-                <Cart classToSelect={".cart-content "}/>
-                <div className='add-to-cart-wrapper'>
-                    <p>Tax 21%: <span>{this.getTaxValue()}</span></p>
-                    <p><>Quantity: <span>{this.state.quantity}</span></></p>
-                    <p>Total: <span>{this.props.currency.symbol + this.twoDecimalTrunc(this.state.total)}</span></p>
-                    <button className='add-to-cart-button'>ORDER</button>
-                </div>
-            </div>
-        )
-    }
+import { useState } from "react";
+import { connect } from "react-redux";
+import { ADD_TO_CART, REMOVE_FROM_CART } from "../redux/actions/cart";
+import "../styles/Cart/Cart.scss";
+import Cart from "../components/Cart";
+import { Currency } from "../types/Category";
+import CartItem from "../types/CartItem";
+import { useEffect } from "react";
+interface Props {
+  currency: Currency;
+  cart: CartItem;
+  quantity: Number;
 }
-const mapStateToProps = (state) => {
-    return {
-        cart: state.cartReducer.cart,
-        currency: state.currencyReducer.currency,
-        quantity: state.cartReducer.quantity
-    };
+interface State {
+  cartReducer: { cart: CartItem; quantity: Number; isCartMenuOpen: Boolean };
+  currencyReducer: { currency: Currency };
+}
+function CartView(props: Props) {
+  const [quantity, setQuantity] = useState(0);
+  const [total, setTotal] = useState(0);
+
+  useEffect(() => {
+    function getPriceAmountForProductPerLabel(product: CartItem) {
+      const prod = product.prices.find(
+        (price) => price.currency.label === props.currency.label
+      );
+      return prod?.amount ?? 0;
+    }
+    function updateTotalPriceAndQuantity() {
+      const cartItems = Object.values(props.cart);
+      const propsQuantity = props.quantity;
+      const propsTotal = cartItems.reduce((previousValue, currentValue) => {
+        const priceAmount = +getPriceAmountForProductPerLabel(currentValue);
+        return previousValue + priceAmount * currentValue.quantity;
+      }, 0);
+      setQuantity(+propsQuantity);
+      setTotal(propsTotal);
+    }
+    updateTotalPriceAndQuantity();
+  }, [props.cart, props.currency.label, props.quantity]);
+  function getTaxValue() {
+    const taxValue = 0.21 * total;
+    return props?.currency?.symbol + twoDecimalTrunc(taxValue);
+  }
+  const twoDecimalTrunc = (num: number) => Math.trunc(num * 100) / 100;
+
+  return (
+    <div className="main-content cart-content">
+      <h1 className="cart-title">Cart</h1>
+      <Cart classToSelect={".cart-content "} />
+      <div className="add-to-cart-wrapper">
+        <p>
+          Tax 21%: <span>{getTaxValue()}</span>
+        </p>
+        <p>
+          <>
+            Quantity: <span>{quantity}</span>
+          </>
+        </p>
+        <p>
+          Total:{" "}
+          <span>{props?.currency?.symbol + twoDecimalTrunc(total)}</span>
+        </p>
+        <button className="add-to-cart-button">ORDER</button>
+      </div>
+    </div>
+  );
+}
+
+const mapStateToProps = (state: State) => {
+  return {
+    cart: state.cartReducer.cart,
+    currency: state.currencyReducer.currency,
+    quantity: state.cartReducer.quantity,
+  };
 };
 const mapDispatchToProps = {
-    ADD_TO_CART,
-    REMOVE_FROM_CART
+  ADD_TO_CART,
+  REMOVE_FROM_CART,
 };
 export default connect(mapStateToProps, mapDispatchToProps)(CartView);
