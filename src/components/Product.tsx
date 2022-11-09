@@ -141,7 +141,7 @@ function Product(props: Props) {
                 background: item.value,
                 border: "1px solid",
                 aspectRatio: "1/1",
-                borderColor: "var(--main-text-color)",
+                borderColor: "var(--primary-text-color)",
               }
           }
           data-value={item.value}

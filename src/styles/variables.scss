@@ -1,11 +1,22 @@
 :root {
     /* Colors */
-    --main-green-color: #5ECE7B;
-    --main-text-color: #1D1F22;
-    --hover-gray-color: #EEEEEE;
-    --out-of-stock-bg-color: #C4C4C461;
-    --out-of-stock-text-color: #8D8F9A;
-    --gray-border-color: #E5E5E5;
+    --primary-bg-color: #ffffff;
+    --secondary-bg-color: #c4c4c461;
+    --alt-bg-color: #fbfbfb;
+    --primary-text-color: #1d1f22;
+    --secondary-text-color: #8d8f9a;
+    --inverted-text-color: #ededed;
+    --strong-text-color: #0c0e10;
+    --subtle-color: #cfcfcf;
+    --primary-border-color: #8f8f8f;
+    --shadow-color: rgba(17, 17, 16, 0.05);
+    --strong-shadow-color: rgba(34, 34, 46, 0.16);
+    --faded-color: rgba(250, 178, 141, 1);
+    --primary-color: #ee6c4d;
+    --icon-bg-color: #f9f9f9;
+    --icon-dark-color: #1d1f22;
+    --icon-dark-hover: #626466;
+    --icon-fill-color: #e8e6e6;
 
     /* Sizes */
     --regular-size: 1rem;
@@ -13,7 +24,56 @@
     --md-size: 1.25rem;
     --lg-size: 1.375rem;
     --xl-size: 1.5rem;
+    background-color: var(--primary-bg-color);
+    transition: background 0.5s ease-in-out;
+}
 
+@media (prefers-color-scheme: dark) {
+    :root.dark {
+        color-scheme: dark;
+        background-color: #1a1a1a;
+        /* Colors */
+        --primary-bg-color: #1a1a1a;
+        --secondary-bg-color: #c4c4c461;
+        --primary-text-color: #ffffff;
+        --alt-bg-color: #5d5d5d;
+        --secondary-text-color: #6c6c70;
+        --strong-text-color: #0c0e10;
+        
+        --subtle-color: #3c3c3c;
+        --primary-border-color: #373737;
+
+        --shadow-color: rgba(79, 79, 79, 0.35);
+        --strong-shadow-color: rgba(177, 177, 177, 0.642);
+
+        --icon-bg-color: #2d2d2d;
+        --icon-fill-color: #3c3c3c;
+        --icon-dark-color: #969696;
+        --icon-dark-hover: #626466;
+
+        background-color: var(--primary-bg-color);
+        img {
+            filter: brightness(0.8) contrast(1.2);
+        }
+    }
+}
+button,
+textarea,
+input,
+select,
+a {
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+    -webkit-tap-highlight-color: transparent;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.mx-1 {
+    margin-right: 1rem;
+    margin-left: 1rem;
 }
 .d-flex {
     display: flex;
@@ -27,6 +87,9 @@
 .jc-space-between {
     justify-content: space-between;
 }
+.jc-end {
+    justify-content: end;
+}
 .ai-c {
     align-items: center;
 }
@@ -36,24 +99,19 @@
     opacity: 0;
 }
 
-
 /* Media queries */
 /* Portrait orientation */
-@media(min-width: 539px) {
-    
+@media (min-width: 539px) {
 }
 
 /* Tablets */
-@media(min-width: 768px) {
-    
+@media (min-width: 768px) {
 }
 
 /* Laptops */
-@media(min-width: 992px) {
-    
+@media (min-width: 992px) {
 }
 
 /* Desktop */
-@media(min-width: 1200px ) {
-    
+@media (min-width: 1200px) {
 }

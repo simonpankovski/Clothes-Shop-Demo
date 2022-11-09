@@ -27,7 +27,7 @@
     .attribute-values {
         justify-content: flex-start;
         li:hover {
-            background: white;
+            background: var(--primary-bg-color);
         }
     }
     .attribute-name {
@@ -40,7 +40,7 @@
 
 .cart-content {
     .row {
-        border-bottom: 1px solid var(--gray-border-color);
+        border-bottom: 1px solid var(--primary-border-color);
         display: flex;
         justify-content: space-between;
         flex-direction: column;
@@ -49,7 +49,7 @@
             align-items: center;
         }
         &:first-of-type {
-            border-top: 1px solid var(--gray-border-color);
+            border-top: 1px solid var(--primary-border-color);
         }
     }
 }
@@ -75,7 +75,7 @@
     height: 100%;
     max-height: 300px;
     .adjust-quantity {
-        border: 1px solid var(--main-text-color);
+        border: 1px solid var(--primary-text-color);
         height: 2.8125rem;
         aspect-ratio: 1/1;
         @include center-text;
@@ -96,15 +96,15 @@
     display: flex;
     gap: 0.5rem;
     div {
-        background: rgba(0, 0, 0, 0.73);
+        background: var(--icon-fill-color);
         width: 1.5rem;
         aspect-ratio: 1/1;
-        color: white;
+        color: var(--primary-text-color);
         @include center-text;
         font-weight: 200;
         cursor: pointer;
         &:hover {
-            background: rgba(0, 0, 0, 0.354);
+            background: var(--icon-dark-hover);
             transition: all 0.2s ease-in;
         }
     }
@@ -114,7 +114,8 @@
 @media (min-width: 539px) {
     .adjust-quantity:hover {
         cursor: pointer;
-        background: var(--gray-border-color);
+        background: var(--primary-border-color);
+        color: var(--inverted-text-color);
     }
 }
 

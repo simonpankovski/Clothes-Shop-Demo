@@ -1,14 +1,14 @@
 const initialState = {
     cart: {},
     quantity: 0,
-    isCartMenuOpen: false
+    isCartMenuOpen: false,
 };
 const getCart = (state, action) => {
     let objId = { id: action.payload.id, ...action.payload.selectedAttributes };
     let idString = "'" + JSON.stringify(objId) + "'";
     let tempMap = { ...state.cart };
     return [tempMap, idString];
-}
+};
 const cartReducer = (state = initialState, action) => {
     switch (action.type) {
         case "ADD_TO_CART":
@@ -17,8 +17,7 @@ const cartReducer = (state = initialState, action) => {
             let idString = tempMap[1];
             if (cartObj[idString]) {
                 cartObj[idString].quantity = cartObj[idString].quantity + 1;
-            }
-            else {
+            } else {
                 cartObj[idString] = action.payload;
             }
             return { ...state, cart: cartObj, quantity: state.quantity + 1 };
@@ -28,15 +27,14 @@ const cartReducer = (state = initialState, action) => {
             let idString1 = tempMap1[1];
             if (cartObj1[idString1].quantity === 1) {
                 delete cartObj1[idString1];
-            }
-            else {
+            } else {
                 cartObj1[idString1].quantity = cartObj1[idString1].quantity - 1;
             }
             return { ...state, cart: cartObj1, quantity: state.quantity - 1 };
         case "TOGGLE_CART_MENU":
-            return { ...state, isCartMenuOpen: !state.isCartMenuOpen};
+            return { ...state, isCartMenuOpen: !state.isCartMenuOpen };
         case "CLOSE_CART_MENU":
-            return { ...state, isCartMenuOpen: false};
+            return { ...state, isCartMenuOpen: false };
         default:
             return state;
     }

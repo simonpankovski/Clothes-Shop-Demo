@@ -53,8 +53,8 @@ function Cart(props: Props) {
         if (
           item.attributes.getNamedItem("data-item-type")?.nodeValue === "text"
         ) {
-          item["style"].background = "white";
-          item["style"].color = "var(--main-text-color)";
+          item["style"].background = "var(--alt-bg-color)";
+          item["style"].color = "var(--primary-text-color)";
         } else {
           item["style"].border = "1px solid" + item["style"].background;
         }
@@ -68,11 +68,11 @@ function Cart(props: Props) {
               element.children[1].children[attributeIndex];
             if (!selectedElement) return;
             if (attributeType === "text") {
-              selectedElement["style"].background = "var(--main-text-color)";
-              selectedElement["style"].color = "white";
+              selectedElement["style"].background = "var(--primary-border-color)";
+              selectedElement["style"].color = "var(--inverted-text-color)";
             } else {
               selectedElement["style"].border =
-                "1px solid var(--main-green-color)";
+                "4px solid var(--inverted-text-color)";
             }
           }
         );
@@ -101,12 +101,14 @@ function Cart(props: Props) {
           ref={(ref) => (cartListItems[item?.id ?? ""] = ref)}
           style={
             attribute.type === "text"
-              ? {}
+              ? {
+                background: "var(--alt-bg-color)"
+              }
               : {
                   background: item.value,
                   border: "1px solid",
                   aspectRatio: "1/1",
-                  borderColor: "var(--main-text-color)",
+                  borderColor: "var(--primary-text-color)",
                 }
           }
           data-value={item.value}

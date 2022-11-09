@@ -11,8 +11,8 @@
     }
 
     .selected-link {
-        color: var(--main-green-color);
-        border-bottom: 2px solid var(--main-green-color);
+        color: var(--primary-color);
+        border-bottom: 2px solid var(--primary-color);
         font-weight: 600;
     }
 
@@ -27,19 +27,19 @@
     align-items: center;
 }
 .selected-currency {
-    background-color: var(--hover-gray-color);
+    background-color: var(--alt-bg-color);
 }
 .cart-products {
     visibility: hidden;
     width: 100vw;
     max-width: 400px;
     position: absolute;
-    background: white;
+    background: var(--primary-bg-color);
     top: 30px;
     right: -4.9vw;
     z-index: 30;
     transition: all 0.3s cubic-bezier(0.34, 0.54, 0.47, 1.08);
-    box-shadow: rgba(17, 17, 26, 0.05) 0px 1px 0px, rgba(17, 17, 26, 0.06) 0px 0px 8px;
+    box-shadow: var(--shadow-color) 0px 1px 0px, var(--shadow-color) 0px 0px 8px;
     li,
     p {
         list-style-type: none;
@@ -109,32 +109,31 @@
         .view-bag-button {
             width: 100%;
             font-size: 0.875rem;
-            background: white;
-            border: 1px solid var(--main-text-color);
-            color: black;
+            background: var(--alt-bg-color);
+            border: 1px solid var(--primary-border-color);
+            color: var(----icon-dark-color);
             padding: 1rem;
             text-align: center;
             &:hover {
-                background-color: var(--main-text-color);
-                border-color: var(--main-text-color);
+                background-color: var(--primary-border-color);
                 cursor: pointer;
-                color: white;
+                color: var(--primary-text-color);
                 transition: all 0.3s ease-out;
             }
             &:last-child {
-                background-color: var(--main-green-color);
-                border: 1px solid var(--main-green-color);
-                color: white;
+                background-color: var(--primary-color);
+                border: 1px solid var(--primary-color);
+                color: var(--icon-bg-color);
                 &:hover {
-                    background-color: white;
-                    color: var(--main-green-color);
+                    color: var(--primary-text-color);
+                    background-color: var(--faded-color);
                     cursor: pointer;
                     transition: all 0.3s ease-out;
                 }
             }
         }
         button {
-            background-color: var(--main-green-color);
+            background-color: var(--primary-color);
         }
     }
 }
@@ -144,13 +143,46 @@
         width: 31px;
     }
 }
+@keyframes moveAnim {
+    from {
+        margin-left: 0;
+    }
+    to {
+    }
+}
 
+.toggle-theme-button {
+    width: 40px;
+    border: 1px solid var(--primary-border-color);
+    border-radius: 15px;
+    background-color: var(--icon-bg-color);
+    padding: 0 3px;
+    &:hover {
+        cursor: pointer;
+    }
+    img {
+        background-color: var(--icon-fill-color);
+        border-radius: 50%;
+        padding: 3px;
+        margin-left: 0;
+
+        transition: margin 0.1s ease-out;
+    }
+    // img:last-of-type {
+    //     flex: 1;
+    //     animation: moveAnim 0.3s alternate 1;
+    // }
+}
+.animate-icon-toggle {
+    margin-left: calc(100% - 16px) !important;
+}
 .dropdown-button {
+    background-color: transparent;
     position: relative;
-
     p {
+        width: 1.5rem;
         font-weight: 500;
-        margin-right: 1vw;
+        margin-right: 0.5rem;
         font-size: 1.125rem;
     }
 }
@@ -165,17 +197,28 @@
 }
 
 .cart-icon {
-    margin-left: 2vw;
+    background-color: transparent;
     position: relative;
 }
-
+.dark .cart-icon {
+    & > img {
+        -webkit-filter: invert(100%) hue-rotate(180deg) brightness(132%) contrast(100%) !important;
+        filter: invert(100%) hue-rotate(180deg) brightness(132%) contrast(100%) !important;
+    }
+}
+.dark .dropdown-button {
+    & > img {
+        -webkit-filter: invert(100%) hue-rotate(180deg) brightness(132%) contrast(100%) !important;
+        filter: invert(100%) hue-rotate(180deg) brightness(132%) contrast(100%) !important;
+    }
+}
 .cart-count {
     position: absolute;
     top: -10px;
     right: -10px;
     p {
-        color: white;
-        background: var(--main-text-color);
+        color: var(--inverted-text-color);
+        background: var(--primary-color);
         border-radius: 50%;
         width: 20px;
         line-height: 20px;
@@ -187,16 +230,16 @@
 
 .currencies {
     position: absolute;
-    background: white;
+    background: var(--alt-bg-color);
     top: 30px;
     left: -4rem;
     z-index: 10;
     opacity: 0;
     transition: all 0.3s cubic-bezier(0.34, 0.54, 0.47, 1.08);
-    box-shadow: rgba(17, 17, 26, 0.05) 0px 1px 0px, rgba(17, 17, 26, 0.06) 0px 0px 8px;
+    box-shadow: var(--shadow-color) 1px 1px 2px 0px, var(--shadow-color) 0px 0px 2px;
     font-size: var(--sm-size);
-    li {
-        list-style-type: none;
+    button {
+        width: 100%;
         padding: 1rem 1.5rem;
     }
     span {
@@ -209,7 +252,7 @@
     .navbar-links a {
         padding-bottom: 1rem;
         &:hover {
-            color: var(--main-green-color);
+            color: var(--primary-color);
         }
     }
 
@@ -234,7 +277,7 @@
     }
 
     .currencies li:hover {
-        background: #dddddd;
+        background: var(--icon-fill-color);
     }
 
     .cart-icon:hover {
