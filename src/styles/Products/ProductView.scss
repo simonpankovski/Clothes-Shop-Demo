@@ -46,7 +46,6 @@
 
 .main-product-image {
     width: 100%;
-    max-height: 70vh;
     -o-object-fit: cover;
     object-fit: cover;
 }
@@ -80,9 +79,9 @@
 
 .product-attribute {
     margin-bottom: 1.5rem;
-    li {
+    button {
         list-style: none;
-        border: 1px solid var(--primary-text-color);
+        border: 1px solid var(--icon-dark-color);
         display: flex;
         justify-content: center;
         align-items: center;
@@ -93,10 +92,11 @@
 }
 .attribute-values {
     display: flex;
-    li {
+    button {
         font-weight: 400;
         font-family: "Source Sans Pro", sans-serif;
         line-height: 18px;
+        background-color: var(--inverted-text-color);
     }
 }
 
@@ -104,7 +104,7 @@
     display: flex;
     flex-wrap: wrap;
     gap: 1rem;
-    li {
+    button {
         width: 2rem;
         aspect-ratio: 1/1;
     }
@@ -114,7 +114,7 @@
     display: flex;
     flex-wrap: wrap;
     gap: 1rem;
-    li {
+    button {
         height: 2.8125rem;
         aspect-ratio: 1.4/1;
     }
@@ -126,8 +126,8 @@
 
 .add-to-cart-button {
     background: var(--primary-color);
-    color: var(--inverted-text-color);
-    padding: 1rem 3rem;
+    color: var(--light-color);
+    padding: 1rem 0;
     border: 1px solid var(--primary-color);
     font-weight: 600;
     line-height: 120%;
@@ -136,8 +136,8 @@
 }
 
 .selected-text-attribute {
-    background: var(--icon-dark-color);
-    color: var(--inverted-text-color);
+    background-color: var(--icon-dark-color)!important;
+    color: var(--light-color);
 }
 
 .selected-swatch-attribute {
@@ -166,7 +166,7 @@
 .product-view-image-wrapper {
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: flex-start;
     position: relative;
     margin: 2rem auto;
     height: 70vh;
@@ -174,6 +174,8 @@
         position: absolute;
         background: var(--secondary-bg-color);
         width: 100%;
+        
+        max-height: 70vh;
         height: 100%;
         display: flex;
         align-items: center;
@@ -195,16 +197,16 @@
         width: 50%;
         transition: all 0.3s ease-out;
         &:hover {
-            background-color: var(--primary-color);
-            border-color: var(--primary-color);
+            background-color: var(--faded-color);
+            border-color: var(--faded-color);
             cursor: pointer;
-            transition: all 0.3s ease-out;
+            transition: all 0.1s ease-out;
         }
     }
     .gallery-images {
         max-height: 70vh;
     }
-    .attribute-values li:hover {
+    .attribute-values button:hover {
         cursor: pointer;
         background-color: var(--icon-dark-hover);
         color: var(--inverted-text-color);
@@ -273,8 +275,6 @@
     }
 
     .gallery-images {
-        overflow-y: auto;
-        overflow-x: hidden;
         display: flex;
         flex-direction: column;
         margin-top: 0;

@@ -53,7 +53,7 @@ function Cart(props: Props) {
         if (
           item.attributes.getNamedItem("data-item-type")?.nodeValue === "text"
         ) {
-          item["style"].background = "var(--alt-bg-color)";
+          item["style"].background = "var(--inverted-text-color)";
           item["style"].color = "var(--primary-text-color)";
         } else {
           item["style"].border = "1px solid" + item["style"].background;
@@ -68,8 +68,8 @@ function Cart(props: Props) {
               element.children[1].children[attributeIndex];
             if (!selectedElement) return;
             if (attributeType === "text") {
-              selectedElement["style"].background = "var(--primary-border-color)";
-              selectedElement["style"].color = "var(--inverted-text-color)";
+              selectedElement["style"].background = "var(--icon-dark-color)";
+              selectedElement["style"].color = "var(--light-color)";
             } else {
               selectedElement["style"].border =
                 "4px solid var(--inverted-text-color)";
@@ -96,13 +96,14 @@ function Cart(props: Props) {
   function renderAttributeValues(attribute: AttributeSet) {
     let attributeValues = attribute.items.map((item: Attribute, i) => {
       return (
-        <li
+        <button
           key={item.id}
+          tabIndex={-1}
           ref={(ref) => (cartListItems[item?.id ?? ""] = ref)}
           style={
             attribute.type === "text"
               ? {
-                background: "var(--alt-bg-color)"
+                background: "var(--inverted-text-color)"
               }
               : {
                   background: item.value,
@@ -117,7 +118,7 @@ function Cart(props: Props) {
           data-item-id={item.id}
         >
           {attribute.type === "text" ? item.value : ""}
-        </li>
+        </button>
       );
     });
     return attributeValues;
@@ -184,19 +185,19 @@ function Cart(props: Props) {
           </div>
           <div className="col">
             <div className="quantity-selector">
-              <div
+              <button
                 className="adjust-quantity"
                 onClick={() => handleProductQuantity(item, "increment")}
               >
                 +
-              </div>
+              </button>
               <div className="quantity-amount">{item.quantity}</div>
-              <div
+              <button
                 className="adjust-quantity"
                 onClick={() => handleProductQuantity(item, "decrement")}
               >
                 -
-              </div>
+              </button>
             </div>
             <div className="image-display">
               <img
@@ -209,18 +210,18 @@ function Cart(props: Props) {
               />
               {item.gallery.length > 1 ? (
                 <div className="cart-image-controls">
-                  <div
+                  <button
                     className="previous-image"
                     onClick={(ev) => handleGalleryImageChange(ev, item)}
                   >
                     {"<"}
-                  </div>
-                  <div
+                  </button>
+                  <button
                     className="next-image"
                     onClick={(ev) => handleGalleryImageChange(ev, item)}
                   >
                     {">"}
-                  </div>
+                  </button>
                 </div>
               ) : (
                 ""

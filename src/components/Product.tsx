@@ -129,7 +129,7 @@ function Product(props: Props) {
   function renderAttributeValues(attribute: AttributeSet) {
     let attributeValues = attribute.items.map((item, i) => {
       return (
-        <li
+        <button
           onClick={(ev) => {
             selectItem(ev, i);
           }}
@@ -149,7 +149,7 @@ function Product(props: Props) {
           data-item-id={item.id}
         >
           {attribute.type === "text" ? item.value : ""}
-        </li>
+        </button>
       );
     });
     return attributeValues;

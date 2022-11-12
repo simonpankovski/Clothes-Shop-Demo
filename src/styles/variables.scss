@@ -3,6 +3,7 @@
     --primary-bg-color: #ffffff;
     --secondary-bg-color: #c4c4c461;
     --alt-bg-color: #fbfbfb;
+    --light-color: #fbfbfb;
     --primary-text-color: #1d1f22;
     --secondary-text-color: #8d8f9a;
     --inverted-text-color: #ededed;
@@ -15,7 +16,7 @@
     --primary-color: #ee6c4d;
     --icon-bg-color: #f9f9f9;
     --icon-dark-color: #1d1f22;
-    --icon-dark-hover: #626466;
+    --icon-dark-hover: #b6b7b8;
     --icon-fill-color: #e8e6e6;
 
     /* Sizes */
@@ -39,11 +40,11 @@
         --alt-bg-color: #5d5d5d;
         --secondary-text-color: #6c6c70;
         --strong-text-color: #0c0e10;
-        
+        --inverted-text-color: #393838;
         --subtle-color: #3c3c3c;
         --primary-border-color: #373737;
 
-        --shadow-color: rgba(79, 79, 79, 0.35);
+        --shadow-color: rgba(0, 0, 0, 0.32);
         --strong-shadow-color: rgba(177, 177, 177, 0.642);
 
         --icon-bg-color: #2d2d2d;
@@ -57,6 +58,7 @@
         }
     }
 }
+
 button,
 textarea,
 input,

@@ -75,7 +75,7 @@
     height: 100%;
     max-height: 300px;
     .adjust-quantity {
-        border: 1px solid var(--primary-text-color);
+        border: 1px solid var(--inverted-text-color);
         height: 2.8125rem;
         aspect-ratio: 1/1;
         @include center-text;
@@ -95,16 +95,18 @@
     right: 7%;
     display: flex;
     gap: 0.5rem;
-    div {
+    button {
         background: var(--icon-fill-color);
         width: 1.5rem;
         aspect-ratio: 1/1;
         color: var(--primary-text-color);
+        border: 1px solid var(--shadow-color);
         @include center-text;
         font-weight: 200;
         cursor: pointer;
         &:hover {
             background: var(--icon-dark-hover);
+            color: var(--inverted-text-color);
             transition: all 0.2s ease-in;
         }
     }
@@ -115,7 +117,7 @@
     .adjust-quantity:hover {
         cursor: pointer;
         background: var(--primary-border-color);
-        color: var(--inverted-text-color);
+        color: var(--primary-text-color);
     }
 }
 

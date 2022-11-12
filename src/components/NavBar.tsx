@@ -81,7 +81,7 @@ function NavBar(props: Props) {
     ): event is React.KeyboardEvent {
         return (event as React.KeyboardEvent).key !== undefined;
     }
-    function openCurrenciesMenu(
+    function toggleCurrenciesMenu(
         event:
             | React.MouseEvent<HTMLDivElement>
             | React.KeyboardEvent<HTMLDivElement>
@@ -94,6 +94,12 @@ function NavBar(props: Props) {
             (isKeyBoardEvent(event) && event.key !== "Enter")
         )
             return;
+        if (isCurrencyMenuOpen) {
+            setStylesOnElement(openCurrencyMenyStyles, currencyMenu);
+            arrowIcon["style"].transform = "";
+            setIsCurrencyMenuOpen(false);
+            return;
+        }
         setStylesOnElement(closeCurrencyMenyStyles, currencyMenu);
         arrowIcon["style"].transform = "scale(1, -1)";
         setIsCurrencyMenuOpen(true);
@@ -102,6 +108,12 @@ function NavBar(props: Props) {
     const toggleTheme = () => {
         props.TOGGLE_THEME();
     };
+    const closeCartMenu = useCallback(() => {
+        let cartMenu = cartProductsRef.current as unknown as HTMLElement;
+        document.body.style.overflowY = "auto";
+        props.CLOSE_CART_MENU();
+        setStylesOnElement(openCurrencyMenyStyles, cartMenu);
+    }, [props]);
     const pointerDownListener = useCallback(
         (ev: PointerEvent) => {
             if (
@@ -119,15 +131,10 @@ function NavBar(props: Props) {
                 props.isCartMenuOpen &&
                 (ev.target as HTMLElement)?.closest(".cart-icon") === null
             ) {
-                console.log("cart");
-                let cartMenu =
-                    cartProductsRef.current as unknown as HTMLElement;
-                document.body.style.overflowY = "auto";
-                props.CLOSE_CART_MENU();
-                setStylesOnElement(openCurrencyMenyStyles, cartMenu);
+                closeCartMenu();
             }
         },
-        [isCurrencyMenuOpen, props]
+        [closeCartMenu, isCurrencyMenuOpen, props.isCartMenuOpen]
     );
     function changeCurrency(
         selectedCurrency: Currency,
@@ -158,7 +165,7 @@ function NavBar(props: Props) {
         setStylesOnElement(openCurrencyMenyStyles, currencyMenu);
         arrowIcon["style"].transform = "";
         setIsCurrencyMenuOpen(false);
-        (dropdownButton as HTMLElement).focus();
+        //(dropdownButton as HTMLElement).focus();
     }
     function isLinkSelected(category: CategoryNames) {
         const search = window.location.pathname;
@@ -208,20 +215,42 @@ function NavBar(props: Props) {
     }, []);
 
     useEffect(() => {
-        let prevTarget = null;
         function focusHandler(event: FocusEvent) {
-            console.log(event.target);
+            event.stopPropagation();
+            const eventTarget = event.target as HTMLElement;
+            const eventRelatedTarget = event.relatedTarget as HTMLElement;
+            if (eventTarget === null || eventRelatedTarget === null) return;
+            const eventTargetClassList = eventTarget.classList;
+            const eventRelatedTargetClassList = eventRelatedTarget.classList;
             if (
-                (event.target as HTMLElement).classList.contains("focus-out") &&
-                !(event.relatedTarget as HTMLElement).classList.contains(
-                    "currency-item"
-                )
+                eventTargetClassList.contains("focus-out") &&
+                !eventRelatedTargetClassList.contains("currency-item")
             ) {
                 closeCurrencyMenu();
             }
-            if (isCurrencyMenuOpen) closeCurrencyMenu()
+            if (
+                eventTargetClassList.contains("cart-checkout-button") &&
+                !eventRelatedTargetClassList.contains(" view-bag")
+            )
+                closeCartMenu();
+            if (
+                eventTargetClassList.contains("dropdown-button") &&
+                eventRelatedTargetClassList.contains("toggle-theme-button")
+            ) {
+                closeCurrencyMenu();
+            }
+            if (
+                eventRelatedTargetClassList.contains("dropdown-button") &&
+                eventTargetClassList.contains("cart-icon")
+            ) {
+                closeCartMenu();
+            }
+            if (isCurrencyMenuOpen) closeCurrencyMenu();
         }
         document.addEventListener("focusout", focusHandler);
+        return () => {
+            document.removeEventListener("focusout", focusHandler);
+        };
     }, []);
 
     useEffect(() => {
@@ -229,37 +258,45 @@ function NavBar(props: Props) {
         return () =>
             document.removeEventListener("pointerdown", pointerDownListener);
     }, [pointerDownListener]);
+
     const toggleCartMenu = useCallback(
-        (event?: React.MouseEvent<Element, MouseEvent>) => {
+        (
+            event: React.MouseEvent<Element, MouseEvent> | React.KeyboardEvent
+        ) => {
             let cartMenu = cartProductsRef.current as unknown as HTMLElement;
             const containsAdjustQuantity =
                 event !== undefined &&
-                (event?.target as HTMLElement).classList.contains(
+                (event.target as HTMLElement).classList.contains(
                     "adjust-quantity"
                 );
-            if (cartMenu === null || containsAdjustQuantity) return;
+            if (
+                cartMenu === null ||
+                containsAdjustQuantity ||
+                (isKeyBoardEvent(event) && event.key !== "Enter")
+            )
+                return;
             props.TOGGLE_CART_MENU();
 
             if (!props.isCartMenuOpen) {
                 setStylesOnElement(closeCurrencyMenyStyles, cartMenu);
                 document.body.style.overflowY = "hidden";
             } else {
-                setStylesOnElement(openCurrencyMenyStyles, cartMenu);
-                document.body.style.overflowY = "auto";
+                closeCartMenu();
             }
         },
-        [props]
+        [closeCartMenu, props]
     );
     useEffect(() => {
+        if (props.isCartMenuOpen) {
+            let cartMenu = cartProductsRef.current as unknown as HTMLElement;
+            setStylesOnElement(closeCurrencyMenyStyles, cartMenu);
+            document.body.style.overflowY = "hidden";
+        }
+    }, []);
+    useEffect(() => {
         setTotal(memoizedGetCartTotalPrice());
-        //toggleCartMenu();
-    }, [
-        memoizedGetCartTotalPrice,
-        props,
-        props.cart,
-        props.isCartMenuOpen,
-        toggleCartMenu,
-    ]);
+    }, [memoizedGetCartTotalPrice, props, props.cart, props.isCartMenuOpen]);
+
     function toggleSelectedClass(event: React.MouseEvent<Element, MouseEvent>) {
         Array.from(
             (navbarLinksRef.current as unknown as HTMLElement).children
@@ -290,7 +327,9 @@ function NavBar(props: Props) {
             </div>
             <div className="navbar-utils d-flex">
                 <button
+                    role={"switch"}
                     aria-label="Toggle dark mode"
+                    aria-checked={!props.isLightMode}
                     className={"d-flex ai-c toggle-theme-button mx-1"}
                     onClick={toggleTheme}
                 >
@@ -306,10 +345,13 @@ function NavBar(props: Props) {
                     />
                 </button>
                 <div
+                    role={"button"}
+                    aria-haspopup={"true"}
+                    aria-expanded={isCurrencyMenuOpen}
                     tabIndex={0}
                     className="d-flex dropdown-button ai-c"
-                    onClick={openCurrenciesMenu}
-                    onKeyDown={openCurrenciesMenu}
+                    onClick={toggleCurrenciesMenu}
+                    onKeyDown={toggleCurrenciesMenu}
                     ref={dropdownButtonRef}
                 >
                     <p className="dollar-icon">{props.currency.symbol}</p>
@@ -334,7 +376,7 @@ function NavBar(props: Props) {
                                     className={
                                         "d-flex jc-space-between currency-item " +
                                         (props.currency.label === el.label
-                                            ? "selected-currency"
+                                            ? "selected-currency "
                                             : "") +
                                         (index === 0 ||
                                         index === currencies.length - 1
@@ -353,7 +395,15 @@ function NavBar(props: Props) {
                         })}
                     </div>
                 </div>
-                <button className="cart-icon mx-1" onClick={toggleCartMenu}>
+                <div
+                    role={"button"}
+                    aria-haspopup={"true"}
+                    aria-expanded={props.isCartMenuOpen}
+                    tabIndex={0}
+                    className="cart-icon mx-1"
+                    onClick={toggleCartMenu}
+                    onKeyDown={toggleCartMenu}
+                >
                     <img
                         src={cartIcon}
                         alt="Cart icon"
@@ -376,15 +426,21 @@ function NavBar(props: Props) {
                             </span>
                         </p>
                         <div className="cart-buttons d-flex">
-                            <Link to={"/cart"} className="view-bag-button">
+                            <Link
+                                to={"/cart"}
+                                className="view-bag-button view-bag"
+                            >
                                 VIEW BAG
                             </Link>
-                            <Link to={""} className="view-bag-button">
+                            <Link
+                                to={""}
+                                className="view-bag-button cart-checkout-button"
+                            >
                                 CHECKOUT
                             </Link>
                         </div>
                     </div>
-                </button>
+                </div>
             </div>
         </header>
     );

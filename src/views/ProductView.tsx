@@ -51,7 +51,7 @@ function ProductView(props: Props) {
   function renderAttributeValues(attribute: AttributeSet) {
     let attributeValues = attribute.items.map((item, index) => {
       return (
-        <li
+        <button
           onClick={(event) => {
             selectItem(event, index);
           }}
@@ -71,7 +71,7 @@ function ProductView(props: Props) {
           data-item-id={item.id}
         >
           {attribute.type === "text" ? item.value : ""}
-        </li>
+        </button>
       );
     });
     return attributeValues;

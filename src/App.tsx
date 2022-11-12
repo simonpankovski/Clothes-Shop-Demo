@@ -25,17 +25,13 @@ interface Props {
 }
 function App({ isCartMenuOpen, isLightMode }: Props) {
     useEffect(() => {
-        if(isLightMode) {
-            document
-            .querySelector("html")
-            ?.classList.remove("dark");
-        }
-        else {
-            document
-            .querySelector("html")
-            ?.classList.add("dark");
+        if (isLightMode) {
+            document.querySelector("html")?.classList.remove("dark");
+        } else {
+            document.querySelector("html")?.classList.add("dark");
         }
     }, [isLightMode]);
+
     return (
         <main className={"App"}>
             <div className={isCartMenuOpen ? "cart-content-overlay" : ""}></div>
