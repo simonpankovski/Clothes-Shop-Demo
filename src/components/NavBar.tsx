@@ -1,5 +1,4 @@
 import React, {
-    RefObject,
     useCallback,
     useEffect,
     useRef,
@@ -27,6 +26,7 @@ import Cart from "./Cart";
 import { Currency } from "../types/Category";
 import CartItem from "../types/CartItem";
 import { TOGGLE_THEME } from "../redux/actions/theme";
+import getPriceAmountForProductPerLabel from "../services/getPriceAmountForProductPerLabel";
 const closeCurrencyMenyStyles = {
     opacity: "1",
     visibility: "visible",
@@ -165,31 +165,22 @@ function NavBar(props: Props) {
         setStylesOnElement(openCurrencyMenyStyles, currencyMenu);
         arrowIcon["style"].transform = "";
         setIsCurrencyMenuOpen(false);
-        //(dropdownButton as HTMLElement).focus();
     }
     function isLinkSelected(category: CategoryNames) {
         const search = window.location.pathname;
         return search.includes(category?.name);
     }
-    const memoizedGetCartTotalPrice = useCallback(getCartTotalPrice, [
-        getCartTotalPrice,
-    ]);
-    function getCartTotalPrice() {
+    const memoizedGetCartTotalPrice = useCallback(() => {
         const cartItemsClone = Object.values(props.cart);
         return cartItemsClone.reduce((previousValue, currentValue) => {
             return (
                 previousValue +
-                +getPriceAmountForProductPerLabel(currentValue) *
+                +getPriceAmountForProductPerLabel(currentValue, props.currency.label) *
                     currentValue.quantity
             );
         }, 0);
-    }
-    function getPriceAmountForProductPerLabel(product: CartItem) {
-        const prod = product.prices.find(
-            (price) => price.currency.label === props.currency.label
-        );
-        return prod?.amount ?? 0;
-    }
+    }, [props.cart, props.currency.label]);
+
     const twoDecimalTrunc = (num: number): number =>
         Math.trunc(num * 100) / 100;
     useEffect(() => {

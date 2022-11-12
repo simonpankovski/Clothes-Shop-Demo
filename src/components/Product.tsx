@@ -10,6 +10,9 @@ import { Currency } from "../types/Category";
 import PromptType from "../types/Prompt";
 import AttributeSet from "../types/AttributeSet";
 import { DeepReadonlyArray } from "@tilework/opus";
+import showCurrencyForProduct from "../services/showCurrencyForProduct";
+import { renderAttributeValues } from "../services/renderAttributeValues";
+import addProductToCart from "../services/addProductToCart";
 
 interface Props {
   product: CartItem;
@@ -29,7 +32,6 @@ function Product(props: Props) {
   );
   const [selectedAttributes, setSelectedAttributes] = useState({});
   const [displayAddToCartOverlay, setDisplayAddToCartOverlay] = useState(false);
-  const [quantity, setQuantity] = useState(1);
   const [promptValues, setPromptValues] = useState<PromptType>({
     showPrompt: false,
     promptMessage: "",
@@ -41,13 +43,6 @@ function Product(props: Props) {
 
   function isProductInStock() {
     return props.product.inStock;
-  }
-  function showCurrencyForProduct() {
-    const currentProductPrice = props?.product?.prices?.find(
-      (price) => price.currency.label === props.selectedCurrency.label
-    );
-    const amount = currentProductPrice?.amount ?? 0;
-    return  amount + " " + props.selectedCurrency.symbol;
   }
   function handleRedirect(ev: MouseEvent, id: String) {
     ev.preventDefault();
@@ -66,94 +61,7 @@ function Product(props: Props) {
       navigate("/product/" + id);
     }
   }
-  function addProductToCart() {
-    const product = {
-      ...props.product,
-      selectedAttributes: selectedAttributes,
-      quantity: quantity,
-    };
-
-    if (
-      Object.keys(product.selectedAttributes).length !==
-      Object.keys(props.product.attributes).length
-    ) {
-      return;
-    }
-    setPromptValues({
-      promptMessage: "Added item to cart!",
-      showPrompt: true,
-    });
-    props.ADD_TO_CART(product);
-    setTimeout(() => {
-      setPromptValues({
-        promptMessage: "",
-        showPrompt: false,
-      });
-    }, 3000);
-  }
-  function selectItem(ev: MouseEvent, index: Number) {
-    const targetedElement = ev.target as HTMLElement;
-    const key = targetedElement?.attributes.getNamedItem("data-attribute-id")?.nodeValue ?? "";
-    const targetElementClasses = targetedElement.classList;
-    if (
-      targetElementClasses.contains("selected-text-attribute") ||
-      targetElementClasses.contains("selected-swatch-attribute")
-    ) {
-      targetElementClasses.remove("selected-text-attribute");
-      targetElementClasses.remove("selected-swatch-attribute");
-
-      let selectedAttributesClone = structuredClone(selectedAttributes);
-      delete selectedAttributesClone[key as keyof Object];
-      setSelectedAttributes(selectedAttributesClone);
-      return;
-    }
-    const selectedAttributesClone = {
-      ...selectedAttributes,
-      [key]: index,
-    };
-    setSelectedAttributes(selectedAttributesClone);
-    const targetParent = targetedElement.parentNode as HTMLElement;
-    const parentNodeType = targetParent?.attributes.getNamedItem("data-type")?.nodeValue;
-    if (parentNodeType === "text") {
-      Array.from(targetParent.children).forEach((child: any) => {
-        child.classList.remove("selected-text-attribute");
-      });
-      targetElementClasses.add("selected-text-attribute");
-    } else {
-      Array.from(targetParent.children).forEach((child: any) => {
-        child.classList.remove("selected-swatch-attribute");
-      });
-      targetElementClasses.add("selected-swatch-attribute");
-    }
-  }
-  function renderAttributeValues(attribute: AttributeSet) {
-    let attributeValues = attribute.items.map((item, i) => {
-      return (
-        <button
-          onClick={(ev) => {
-            selectItem(ev, i);
-          }}
-          key={i}
-          style={
-            attribute.type === "text"
-              ? {}
-              : {
-                background: item.value,
-                border: "1px solid",
-                aspectRatio: "1/1",
-                borderColor: "var(--primary-text-color)",
-              }
-          }
-          data-value={item.value}
-          data-attribute-id={attribute.id}
-          data-item-id={item.id}
-        >
-          {attribute.type === "text" ? item.value : ""}
-        </button>
-      );
-    });
-    return attributeValues;
-  }
+  
   return (
     <Link
       to={"/product/" + props.product.id}
@@ -177,14 +85,14 @@ function Product(props: Props) {
                   {attribute.name.toUpperCase() + ":"}
                 </p>
                 <ul className="attribute-values" data-type={attribute.type}>
-                  {renderAttributeValues(attribute as AttributeSet)}
+                  {renderAttributeValues(attribute as AttributeSet, selectedAttributes, setSelectedAttributes)}
                 </ul>
               </div>
             ))}
           </div>
           <div className="cart-overlay-controls">
             <button className="close-cart-overlay">X</button>
-            <button className="add-to-cart-button" onClick={addProductToCart}>
+            <button className="add-to-cart-button" onClick={() => {addProductToCart(true, setPromptValues, props.product, selectedAttributes, props.ADD_TO_CART)}}>
               ADD TO CART
             </button>
           </div>
@@ -231,7 +139,7 @@ function Product(props: Props) {
               "product-price " + (isProductInStock() ? "" : "out-of-stock-text")
             }
           >
-            {showCurrencyForProduct()}
+            {showCurrencyForProduct(props?.product?.prices, props.selectedCurrency.label, props.selectedCurrency.symbol)}
           </p>
         </div>
       </div>

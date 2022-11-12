@@ -6,6 +6,7 @@ import Cart from "../components/Cart";
 import { Currency } from "../types/Category";
 import CartItem from "../types/CartItem";
 import { useEffect } from "react";
+import getPriceAmountForProductPerLabel from "../services/getPriceAmountForProductPerLabel";
 interface Props {
   currency: Currency;
   cart: CartItem;
@@ -20,17 +21,11 @@ function CartView(props: Props) {
   const [total, setTotal] = useState(0);
 
   useEffect(() => {
-    function getPriceAmountForProductPerLabel(product: CartItem) {
-      const prod = product.prices.find(
-        (price) => price.currency.label === props.currency.label
-      );
-      return prod?.amount ?? 0;
-    }
     function updateTotalPriceAndQuantity() {
       const cartItems = Object.values(props.cart);
       const propsQuantity = props.quantity;
       const propsTotal = cartItems.reduce((previousValue, currentValue) => {
-        const priceAmount = +getPriceAmountForProductPerLabel(currentValue);
+        const priceAmount = +getPriceAmountForProductPerLabel(currentValue, props.currency.label);
         return previousValue + priceAmount * currentValue.quantity;
       }, 0);
       setQuantity(+propsQuantity);
@@ -45,7 +40,7 @@ function CartView(props: Props) {
   const twoDecimalTrunc = (num: number) => Math.trunc(num * 100) / 100;
 
   return (
-    <div className="main-content cart-content">
+    <main className="main-content cart-content">
       <h1 className="cart-title">Cart</h1>
       <Cart classToSelect={".cart-content "} />
       <div className="add-to-cart-wrapper">
@@ -63,7 +58,7 @@ function CartView(props: Props) {
         </p>
         <button className="add-to-cart-button">ORDER</button>
       </div>
-    </div>
+    </main>
   );
 }
 
