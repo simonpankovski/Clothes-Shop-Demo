@@ -1,9 +1,4 @@
-import React, {
-    useCallback,
-    useEffect,
-    useRef,
-    useState,
-} from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { DeepReadonlyArray, Query } from "@tilework/opus";
 import type { DataType } from "@tilework/opus";
 import { client } from "@tilework/opus";
@@ -27,6 +22,7 @@ import { Currency } from "../types/Category";
 import CartItem from "../types/CartItem";
 import { TOGGLE_THEME } from "../redux/actions/theme";
 import getPriceAmountForProductPerLabel from "../services/getPriceAmountForProductPerLabel";
+import BeatLoader from "./BeatLoader";
 const closeCurrencyMenyStyles = {
     opacity: "1",
     visibility: "visible",
@@ -70,6 +66,7 @@ function NavBar(props: Props) {
     >([]);
     const [isCurrencyMenuOpen, setIsCurrencyMenuOpen] = useState(false);
     const [total, setTotal] = useState(0);
+    const [isLoading, setIsLoading] = useState(true);
     const currencyMenuRef = useRef(null);
     const themeToggleRef = useRef(null);
     const dropdownArrowRef = useRef(null);
@@ -175,7 +172,10 @@ function NavBar(props: Props) {
         return cartItemsClone.reduce((previousValue, currentValue) => {
             return (
                 previousValue +
-                +getPriceAmountForProductPerLabel(currentValue, props.currency.label) *
+                +getPriceAmountForProductPerLabel(
+                    currentValue,
+                    props.currency.label
+                ) *
                     currentValue.quantity
             );
         }, 0);
@@ -190,6 +190,7 @@ function NavBar(props: Props) {
             client.setEndpoint(process.env.REACT_APP_GRAPHQL_ENDPOINT || "");
             result = await client.post(query);
             setCategories(await result.categories);
+            setIsLoading(false);
         }
         fetchCategories();
         async function fetchCurrencies() {
@@ -299,20 +300,24 @@ function NavBar(props: Props) {
     const cartCount = +props.quantity;
     return (
         <header className="app-navbar d-flex ai-c jc-space-between">
-            <div className="navbar-links" ref={navbarLinksRef}>
-                {categories.map((category, index) => (
-                    <Link
-                        key={index}
-                        onClick={(ev) => toggleSelectedClass(ev)}
-                        className={
-                            isLinkSelected(category) ? "selected-link" : ""
-                        }
-                        to={"/" + category.name}
-                    >
-                        {category.name.toUpperCase()}
-                    </Link>
-                ))}
-            </div>
+            {isLoading ? (
+                <BeatLoader />
+            ) : (
+                <nav className="navbar-links" ref={navbarLinksRef}>
+                    {categories.map((category, index) => (
+                        <Link
+                            key={index}
+                            onClick={(ev) => toggleSelectedClass(ev)}
+                            className={
+                                isLinkSelected(category) ? "selected-link" : ""
+                            }
+                            to={"/" + category.name}
+                        >
+                            {category.name.toUpperCase()}
+                        </Link>
+                    ))}
+                </nav>
+            )}
             <div className="navbar-logo">
                 <img src={logo} alt="Brand icon" />
             </div>

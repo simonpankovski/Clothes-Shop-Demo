@@ -1,0 +1,37 @@
+.beat-loader {
+    display: flex;
+    gap: 0.5rem;
+    span {
+        background-color: var(--primary-color);
+        width: 1rem;
+        height: 1rem;
+        border-radius: 50%;
+        
+    }
+    .double {
+        animation: loading 0.5s infinite alternate-reverse linear;
+    }
+    .single {
+        animation: loading-reverse 0.5s infinite alternate-reverse linear;    
+    }
+}
+@keyframes loading {
+    from {
+        background-color: var(--primary-color);
+        transform: scale(0.7);
+    }
+    to {
+        background-color: var(--faded-color);
+        transform: scale(1);
+    }
+}
+@keyframes loading-reverse {
+    from {
+        background-color: var(--faded-color);
+        transform: scale(1);
+    }
+    to {
+        background-color: var(--primary-color);
+        transform: scale(0.7);
+    }
+}

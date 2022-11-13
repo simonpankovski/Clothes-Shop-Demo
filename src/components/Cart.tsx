@@ -86,11 +86,6 @@ function Cart(props: Props) {
         const eventTarget = event.target as HTMLElement;
         const isIncrement = eventTarget.classList[0].includes("next");
         let selectedGalleryIndex = Number(item?.selectedGalleryIndex ?? 0);
-        console.log(
-            item.gallery[
-                item.selectedGalleryIndex ? item.selectedGalleryIndex : 0
-            ]
-        );
         if (isIncrement) {
             if (selectedGalleryIndex >= item.gallery.length - 1)
                 item.selectedGalleryIndex = 0;
