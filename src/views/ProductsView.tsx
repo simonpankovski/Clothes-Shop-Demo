@@ -8,7 +8,6 @@ import {
 import { useEffect, useState } from "react";
 import Product from "../components/Product";
 import "../styles/Products/ProductsView.scss";
-import arrow from "../assets/dropdown-arrow.svg";
 import capitalizeFirstLetter from "../components/capitalizeFirstLetter";
 import { connect } from "react-redux";
 import { SET_CURRENCY } from "../redux/actions/currency.js";
@@ -16,14 +15,13 @@ import { Currency } from "../types/Category";
 import CartItem from "../types/CartItem";
 import { useLocation } from "react-router-dom";
 import ProductSkeleton from "../components/ProductSkeleton";
+import ScrollToTopButton from "../components/ScrollToTopButton";
+import useScroll from "../hooks/useScroll";
 interface Props {
     selectedCurrency: Currency;
 }
 interface State {
     currencyReducer: { currency: Currency };
-}
-function scrollToTop() {
-    window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
 }
 
 function ProductsView({ selectedCurrency }: Props) {
@@ -93,9 +91,9 @@ function ProductsView({ selectedCurrency }: Props) {
         return (
             <section className="main-content">
                 <div className="catalog">
-                    {[...Array(9)].map((item, index) => 
-                        <ProductSkeleton key={index}/>
-                    )}
+                    {[...Array(9)].map((item, index) => (
+                        <ProductSkeleton key={index} />
+                    ))}
                 </div>
             </section>
         );
@@ -116,14 +114,7 @@ function ProductsView({ selectedCurrency }: Props) {
                     />
                 ))}
 
-                <div className="scroll-to-top-button" onClick={scrollToTop}>
-                    <img
-                        src={arrow}
-                        alt="Dropdown arrow icon"
-                        height="11"
-                        width="11"
-                    />
-                </div>
+                <ScrollToTopButton/>
             </div>
         </section>
     );

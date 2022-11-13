@@ -174,7 +174,7 @@ function ProductView(props: Props) {
                             src={product?.gallery[selectedImageIndex]}
                             alt="Selected Product"
                         />
-                        {product?.inStock && (
+                        {!product?.inStock && (
                             <div
                                 className={
                                     (product?.inStock ? "hidden" : "") +
